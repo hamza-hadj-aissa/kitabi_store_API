@@ -4,8 +4,8 @@ const {
 } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
-    const Orders = require('./orders')(sequelize, DataTypes);
-    const Books_stores_rel = require('./books_stores_rel')(sequelize, DataTypes);
+    // const Orders = require('./orders')(sequelize, DataTypes);
+    // const Books_stores_rel = require('./books_stores_rel')(sequelize, DataTypes);
     class Orders_books_rel extends Model { }
     Orders_books_rel.init({
         fk_order_id: {

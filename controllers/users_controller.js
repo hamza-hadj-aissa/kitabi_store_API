@@ -73,6 +73,7 @@ const create_user = async (req, res) => {
             )
             .catch(
                 (err) => {
+                    console.log(err);
                     return res.json({
                         "success": false,
                         "message": err
