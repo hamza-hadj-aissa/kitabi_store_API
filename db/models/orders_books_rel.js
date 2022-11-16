@@ -58,5 +58,26 @@ module.exports = (sequelize, DataTypes) => {
         modelName: 'Orders_books_rel',
     });
 
+    // Orders.belongsToMany(Books_stores_rel, {
+    //     through: Orders_books_rel,
+    //     foreignKey: 'fk_order_id',
+    //     onDelete: 'cascade',
+    //     onUpdate: 'cascade'
+    // });
+
+    // Books_stores_rel.belongsToMany(Orders, {
+    //     through: Orders_books_rel,
+    //     sourceKey: 'fk_store_id',
+    //     foreignKey: 'fk_store_id',
+    //     onDelete: 'cascade',
+    //     onUpdate: 'cascade'
+    // });
+    // Books_stores_rel.hasMany(Orders_books_rel, {
+    //     // through: Orders_books_rel,
+    //     sourceKey: 'fk_book_id',
+    //     foreignKey: 'fk_book_id',
+    //     onDelete: 'cascade',
+    //     onUpdate: 'cascade'
+    // });
     return Orders_books_rel;
 };

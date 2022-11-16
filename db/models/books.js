@@ -2,8 +2,8 @@
 const {
   Model
 } = require('sequelize');
-const users = require('./users');
 module.exports = (sequelize, DataTypes) => {
+
   class Books extends Model { }
   Books.init({
     id: {
@@ -71,5 +71,8 @@ module.exports = (sequelize, DataTypes) => {
     freezeTableName: true,
     modelName: 'Books',
   });
+
+
+
   return Books;
 };

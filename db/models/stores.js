@@ -3,9 +3,11 @@ const {
   Model
 } = require('sequelize');
 const { Op } = require('sequelize');
+const books = require('./books');
 
 module.exports = (sequelize, DataTypes) => {
-  const Books_stores_rel = require('./books_stores_rel')(sequelize, DataTypes);
+  const Users = require('./users')(sequelize, DataTypes);
+
   class Stores extends Model { }
   Stores.init({
     id: {
@@ -19,18 +21,38 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       type: DataTypes.INTEGER,
       foreignKey: true,
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-      references: {
-        model: 'Users',
-        key: 'id',
-      }
+      // onDelete: 'cascade',
+      // onUpdate: 'cascade',
+      // references: {
+      //   model: 'Users',
+      //   key: 'id',
+      // }
+    },
+    store_name: {
+      allowNull: false,
+      type: DataTypes.STRING,
     }
   }, {
     sequelize,
     freezeTableName: true,
     modelName: 'Stores',
   });
+
+
+  Stores.belongsTo(Users, {
+    constraints: true,
+    foreignKey: 'fk_owner_id',
+    onDelete: 'cascade',
+    onUpdate: 'cascade',
+  });
+  Users.hasOne(Stores, {
+    constraints: true,
+    foreignKey: 'fk_owner_id',
+    onDelete: 'cascade',
+    onUpdate: 'cascade'
+  });
+
+
 
   Stores.prototype.add_book_to_store = async function (book) {
     let storeId = this.id;

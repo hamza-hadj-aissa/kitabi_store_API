@@ -4,6 +4,9 @@ const {
 } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
+    const Stores = require('./stores')(sequelize, DataTypes);
+    const Books = require('./books')(sequelize, DataTypes);
+
     class Books_stores_rel extends Model { }
     Books_stores_rel.init({
         fk_store_id: {
@@ -11,24 +14,24 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             primaryKey: true,
             foreignKey: true,
-            onDelete: 'cascade',
-            onUpdate: 'cascade',
-            references: {
-                model: 'Stores',
-                key: 'id',
-            }
+            // onDelete: 'cascade',
+            // onUpdate: 'cascade',
+            // references: {
+            //     model: 'Stores',
+            //     key: 'id',
+            // }
         },
         fk_book_id: {
             allowNull: false,
             type: DataTypes.INTEGER,
             primaryKey: true,
             foreignKey: true,
-            onDelete: 'cascade',
-            onUpdate: 'cascade',
-            references: {
-                model: 'Books',
-                key: 'id',
-            }
+            //     // onDelete: 'cascade',
+            //     // onUpdate: 'cascade',
+            //     // references: {
+            //     //     model: 'Books',
+            //     //     key: 'id',
+            //     // }
         },
         quantity: {
             type: DataTypes.INTEGER,
@@ -56,6 +59,19 @@ module.exports = (sequelize, DataTypes) => {
         sequelize,
         freezeTableName: true,
         modelName: 'Books_stores_rel',
+    });
+
+    Stores.belongsToMany(Books, {
+        through: Books_stores_rel,
+        foreignKey: 'fk_store_id',
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+    });
+    Books.belongsToMany(Stores, {
+        through: Books_stores_rel,
+        foreignKey: 'fk_book_id',
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
     });
     return Books_stores_rel;
 };

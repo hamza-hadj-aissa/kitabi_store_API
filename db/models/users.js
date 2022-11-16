@@ -6,12 +6,7 @@ const {
 
 
 module.exports = (sequelize, DataTypes) => {
-  const Stores = require('./stores')(sequelize, DataTypes);
-  const Orders = require('./orders')(sequelize, DataTypes);
-  class Users extends Model {
-
-
-  }
+  class Users extends Model { }
   Users.init({
     id: {
       allowNull: false,
@@ -71,8 +66,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Users.prototype.create_order = async function () {
-    return await Orders.create({
-      fk_buyer_id: this.id,
+    return await this.createOrder({
+      // fk_buyer_id: this.id,
     })
       .then(() => console.log('order created'))
       .catch((err) => {
@@ -82,14 +77,18 @@ module.exports = (sequelize, DataTypes) => {
 
   Users.prototype.create_store = async function () {
     if (this.user_type == 'seller') {
-      return await Stores.create({
-        fk_owner_id: this.id
+      return await this.createStores({
+        store_name: 'store',
       })
         .then(
-          (store) => store
+          (store) => {
+            console.log('Store created')
+            return store;
+          }
         )
         .catch(
           (err) => {
+            console.log(err);
             throw err;
           });
     }
@@ -106,5 +105,7 @@ module.exports = (sequelize, DataTypes) => {
         .catch((err) => err);
     }
   }
+
+
   return Users;
 };
