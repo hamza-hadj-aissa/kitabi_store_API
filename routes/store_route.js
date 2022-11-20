@@ -4,7 +4,7 @@ const stores_controllers = require('../controllers/stores_controller');
 
 // router.get('/', stores_controllers.get_all_books);
 
-// router.get('/:id', stores_controllers.get_one_book);
+router.get('/create/:id', stores_controllers.create_store);
 
 router.post('/addBook', stores_controllers.addBookToStore);
 

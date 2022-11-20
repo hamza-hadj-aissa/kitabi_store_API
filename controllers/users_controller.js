@@ -1,7 +1,5 @@
 const Users = require('../db/models/users')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
 const Joi = require('joi')
-const Stores_controller = require('./stores_controller');
-const Orders_controller = require('./orders_controller');
 
 const user_schema = Joi.object({
     firstName: Joi.string().required(),
@@ -11,8 +9,8 @@ const user_schema = Joi.object({
     phone_number: Joi.number().required(),
     address: Joi.string().required(),
     password: Joi.string().required(),
-    user_type: Joi.string().valid('buyer', 'seller', 'admin').required(),
-    gender: Joi.string().valid('male', 'female').required(),
+    user_type: Joi.number().valid(0, 1, 2).required(),
+    gender: Joi.number().valid(0, 1).required(),
 });
 
 function validateUserSchema(userInfo) {
@@ -23,7 +21,7 @@ async function deleteUser(res, id) {
     return await Users.destroy({
         where: {
             id: id,
-        }
+        },
     })
         .then(
             (numberOfDeletedRows) => {
@@ -64,7 +62,7 @@ const create_user = async (req, res) => {
         await Users.create(newUserInfo)
             .then(
                 async (newUser) => {
-                    await newUser.create_store();
+                    // await newUser.create_store();
                     return res.json({
                         "success": true,
                         "message": 'user created successfully',
@@ -84,7 +82,7 @@ const create_user = async (req, res) => {
 }
 
 const delete_user = async (req, res) => {
-    let adminId = req.params.id;
+    let adminId = req.body.id;
     await Users.findByPk(adminId, {
         attributes: [
             'user_type'
@@ -93,8 +91,8 @@ const delete_user = async (req, res) => {
         .then(
             async (admin) => {
                 if (admin) {
-                    if (admin.user_type == 'admin') {
-                        let deletedUserId = req.body.id;
+                    if (admin.user_type == 2) {
+                        let deletedUserId = req.params.id;
                         return await deleteUser(res, deletedUserId);
                     } else {
                         return res.status(403).json({

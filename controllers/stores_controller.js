@@ -5,6 +5,46 @@ const Stores = require('../db/models/stores')(require("../db/models/index").sequ
 const Books_controller = require('../controllers/books_controller');
 const { Op } = require('sequelize');
 
+const create_store = async (req, res) => {
+    let { id } = req.params;
+    await Users.findOne({
+        where: {
+            id: id
+        }
+    })
+        .then(
+            async (user) => {
+                if (user) {
+                    await user.create_store()
+                        .then(
+                            (store) => {
+                                if (store) {
+                                    res.json({
+                                        "success": true,
+                                    });
+                                } else {
+                                    res.json({
+                                        "success": false,
+                                        "message": "user is not authorized to have a store"
+                                    });
+                                }
+                            }
+                        );
+                } else {
+                    res.json({
+                        "success": false,
+                        "message": "user does not exist"
+                    });
+                }
+            }
+        )
+        .catch((err) => {
+            res.json({
+                "success": false,
+                "message": err.toString()
+            });
+        })
+}
 
 const addBookToStore = async (req, res) => {
     let { sellerId, storeId } = req.body;
@@ -82,11 +122,11 @@ const removeBookFromStore = async (req, res) => {
         .then(
             async (store) => {
                 await store.remove_book_from_store(req.body.bookId)
-                then(
-                    (result) => res.json({
-                        "success": true
-                    })
-                );
+                    .then(
+                        (result) => res.json({
+                            "success": true
+                        })
+                    );
             }
         )
         .catch(
@@ -195,6 +235,7 @@ const deleteAllBooksInStore = async (req, res) => {
 }
 
 module.exports = {
+    create_store,
     addBookToStore,
     removeBookFromStore,
     updateBookInStore,

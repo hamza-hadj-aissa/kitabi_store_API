@@ -3,11 +3,9 @@ const {
   Model
 } = require('sequelize');
 const { Op } = require('sequelize');
-const books = require('./books');
 
 module.exports = (sequelize, DataTypes) => {
   const Users = require('./users')(sequelize, DataTypes);
-
   class Stores extends Model { }
   Stores.init({
     id: {
@@ -18,9 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     fk_owner_id: {
       allowNull: false,
-      unique: true,
       type: DataTypes.INTEGER,
       foreignKey: true,
+      unique: true,
+      // primaryKey: true,
       // onDelete: 'cascade',
       // onUpdate: 'cascade',
       // references: {
@@ -38,23 +37,34 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Stores',
   });
 
-
-  Stores.belongsTo(Users, {
-    constraints: true,
+  Users.hasOne(Stores, {
     foreignKey: 'fk_owner_id',
     onDelete: 'cascade',
     onUpdate: 'cascade',
   });
-  Users.hasOne(Stores, {
-    constraints: true,
+
+  Stores.belongsTo(Users, {
     foreignKey: 'fk_owner_id',
     onDelete: 'cascade',
-    onUpdate: 'cascade'
+    onUpdate: 'cascade',
   });
 
 
 
+  Users.prototype.get_seller_store = async function () {
+    if (this.user_type == 'seller') {
+      return Stores.findOne({
+        where: {
+          fk_owner_id: this.id,
+        }
+      })
+        .then((store) => store)
+        .catch((err) => err);
+    }
+  }
+
   Stores.prototype.add_book_to_store = async function (book) {
+    const Books_stores_rel = require('./books_stores_rel')(sequelize, DataTypes);
     let storeId = this.id;
     let { fk_book_id, quantity, price, discount } = book;
     return await Books_stores_rel.findOrCreate({
@@ -65,8 +75,8 @@ module.exports = (sequelize, DataTypes) => {
         ]
       },
       defaults: {
-        fk_book_id: fk_book_id,
         fk_store_id: storeId,
+        fk_book_id: fk_book_id,
         quantity: quantity,
         price: price,
         discount: discount
@@ -78,7 +88,16 @@ module.exports = (sequelize, DataTypes) => {
             await addedBook.increment('quantity', { by: book.quantity });
             await addedBook.set('price', price).save();
           } else {
-            await Books_stores_rel.create(book);
+            await Books_stores_rel.create({
+              fk_store_id: storeId,
+              fk_book_id: fk_book_id,
+              quantity: quantity,
+              price: price,
+              discount: discount
+            })
+              .catch((err) => {
+                console.log(err);
+              })
           }
         }
       )
@@ -87,7 +106,11 @@ module.exports = (sequelize, DataTypes) => {
       });
   }
 
+
+
   Stores.prototype.remove_book_from_store = async function (bookId) {
+    const Books_stores_rel = require('./books_stores_rel')(sequelize, DataTypes);
+
     let storeId = this.id;
     await Books_stores_rel.destroy({
       where: {
@@ -112,6 +135,8 @@ module.exports = (sequelize, DataTypes) => {
   }
 
   Stores.prototype.update_book_in_store = async function (bookId, updatedInfo) {
+    const Books_stores_rel = require('./books_stores_rel')(sequelize, DataTypes);
+
     let storeId = this.id;
     await Books_stores_rel.update(updatedInfo, {
       where: {

@@ -3,6 +3,8 @@ const Book = require('../db/models/books')(require("../db/models/index").sequeli
 const Joi = require('joi');
 const CRUD_book = require('./crud/crud_book');
 
+
+
 const book_schema = Joi.object({
     title: Joi.string().required(),
     author: Joi.string().required(),

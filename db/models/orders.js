@@ -25,8 +25,13 @@ module.exports = (sequelize, DataTypes) => {
         // },
         status: {
             allowNull: false,
-            type: DataTypes.ENUM('not confirmed', 'confirmed', 'cancelled'),
-            defaultValue: 'not confirmed',
+            type: DataTypes.INTEGER,
+            values: [0, 1, 2, 3],
+            // 0 for confirmed
+            // 1 for in delivery
+            // 2 for delivered
+            // 3 for cancelled
+            // defaultValue: 'not confirmed',
         },
     }, {
         sequelize,

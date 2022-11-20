@@ -2,17 +2,23 @@ const express = require('express');
 const router = express.Router();
 const book_controllers = require('../controllers/books_controller');
 
+const isAuthenticated = (req, res, next) => {
+    console.log(req.user)
+    if (req.user) next();
+    else res.status(401).send(401);
+}
+
 router.get('/', book_controllers.get_all_books);
 
 router.get('/:id', book_controllers.get_one_book);
 
-router.post('/create', book_controllers.create_book);
+router.post('/create', isAuthenticated, book_controllers.create_book);
 
-router.delete('/delete/:id', book_controllers.delete_book);
+router.delete('/delete/:id', isAuthenticated, book_controllers.delete_book);
 
-router.delete('/deleteAll', book_controllers.delete_all_books);
+router.delete('/deleteAll', isAuthenticated, book_controllers.delete_all_books);
 
-router.put('/update/:id', book_controllers.update_book);
+router.put('/update/:id', isAuthenticated, book_controllers.update_book);
 
 router.use((error, req, res, next) => {
     res.status(error.status || 500);

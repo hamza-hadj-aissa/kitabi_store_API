@@ -9,11 +9,17 @@ module.exports = (sequelize, DataTypes) => {
 
     class Books_stores_rel extends Model { }
     Books_stores_rel.init({
-        fk_store_id: {
+        id: {
             allowNull: false,
             type: DataTypes.INTEGER,
             primaryKey: true,
-            foreignKey: true,
+            autoIncrement: true,
+        },
+        fk_store_id: {
+            allowNull: false,
+            type: DataTypes.INTEGER,
+            // primaryKey: true,
+            // foreignKey: true,
             // onDelete: 'cascade',
             // onUpdate: 'cascade',
             // references: {
@@ -24,8 +30,8 @@ module.exports = (sequelize, DataTypes) => {
         fk_book_id: {
             allowNull: false,
             type: DataTypes.INTEGER,
-            primaryKey: true,
-            foreignKey: true,
+            // primaryKey: true,
+            // foreignKey: true,
             //     // onDelete: 'cascade',
             //     // onUpdate: 'cascade',
             //     // references: {
@@ -65,13 +71,13 @@ module.exports = (sequelize, DataTypes) => {
         through: Books_stores_rel,
         foreignKey: 'fk_store_id',
         onDelete: 'cascade',
-        onUpdate: 'cascade'
+        onUpdate: 'cascade',
     });
     Books.belongsToMany(Stores, {
         through: Books_stores_rel,
         foreignKey: 'fk_book_id',
         onDelete: 'cascade',
-        onUpdate: 'cascade'
+        onUpdate: 'cascade',
     });
     return Books_stores_rel;
 };

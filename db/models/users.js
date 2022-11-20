@@ -6,9 +6,8 @@ const {
 
 
 module.exports = (sequelize, DataTypes) => {
-  const Stores = require('./stores')(sequelize, DataTypes);
-
-  class Users extends Model { }
+  class Users extends Model {
+  }
   Users.init({
     id: {
       allowNull: false,
@@ -29,7 +28,9 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     gender: {
-      type: DataTypes.ENUM('male', 'female'),
+      // true for male
+      // false for female
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     email: {
@@ -57,9 +58,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     user_type: {
-      type: DataTypes.ENUM('buyer', 'seller', 'admin'),
+      // 0 for buyer
+      // 1 for seller
+      // 2 for admin
+      type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 'buyer',
+      defaultValue: 0,
+      // comment: '0 for buyer / 1 for seller / 2 for admin'
     },
   }, {
     sequelize,
@@ -67,43 +72,42 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Users',
   });
 
-  // Users.prototype.create_order = async function () {
-  //   return await this.createOrder({
-  //     // fk_buyer_id: this.id,
-  //   })
-  //     .then(() => console.log('order created'))
-  //     .catch((err) => {
-  //       throw err;
-  //     })
-  // }
-
   Users.prototype.create_store = async function () {
-    if (this.user_type == 'seller') {
-      return await Stores.create({
-        fk_owner_id: this.id
+    const Stores = require('./stores')(sequelize, DataTypes);
+    if (this.user_type >= 1) {
+      return await Stores.findOrCreate({
+        where: {
+          fk_owner_id: this.id,
+        },
+        fk_owner_id: this.id,
+        store_name: 'store',
       })
         .then(
-          (store) => store
+          ([instance, created]) => {
+            if (!created) {
+              throw new Error('user already has a store');
+            }
+            return instance;
+          }
         )
         .catch(
           (err) => {
             throw err;
-          });
+          }
+        );
+      // return await this.createStores({
+      //   store_name: 'store',
+      // })
+      //   .then(
+      //     (store) => store
+      //   )
+      //   .catch(
+      //     (err) => {
+      //       throw err;
+      //     }
+      //   );
     }
+    return null;
   }
-
-  Users.prototype.get_seller_store = async function () {
-    if (this.user_type == 'seller') {
-      return Stores.findOne({
-        where: {
-          fk_owner_id: this.id,
-        }
-      })
-        .then((store) => store)
-        .catch((err) => err);
-    }
-  }
-
-
   return Users;
 };
