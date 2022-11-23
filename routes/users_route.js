@@ -1,15 +1,19 @@
 const express = require('express');
 const router = express.Router();
+const user_controller = require('../controllers/users_controller');
 const auth_controller = require('../controllers/auth_controller');
 const auth_middleware = require('../middlewares/auth_middleware');
 
-// This route is for all type of users
 
-router.post('/register', auth_middleware.isLoggedIn, auth_controller.register);
+router.use(auth_middleware.verfiyToken);
 
-router.post('/login', auth_middleware.isLoggedIn, auth_controller.login);
+router.get('/', auth_middleware.isAdmin, user_controller.get_all_users);
 
-router.get('/logout', auth_middleware.isNotLoggedIn, auth_controller.logout);
+router.get('/:id', user_controller.get_user);
+
+router.post('/create', auth_middleware.isAdmin, user_controller.create_user);
+
+router.delete('/delete/:id', auth_middleware.isAdmin, user_controller.delete_user);
 
 
 router.use((error, req, res, next) => {

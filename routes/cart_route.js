@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const orders_controller = require('../controllers/orders_controller');
-const auth_middleware = require('../middlewares/auth_middleware');
+const cart_controller = require('../controllers/cart_controller');
 
-// get all orders of a specific user
-router.get('/', auth_middleware.verfiyToken, orders_controller.get_all_orders);
+// This route is for all type of users
 
-router.post('/buy', auth_middleware.verfiyToken, orders_controller.buy_book);
+
+router.get('/', cart_controller.getCart);
+
+router.post('/add-to-cart', cart_controller.addBookToCart);
+
+router.delete('/remove-from-cart', cart_controller.removeBookFromCart);
 
 router.use((error, req, res, next) => {
     res.status(error.status || 500);

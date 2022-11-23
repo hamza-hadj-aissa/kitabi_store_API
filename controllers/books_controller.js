@@ -4,7 +4,6 @@ const Joi = require('joi');
 const CRUD_book = require('./crud/crud_book');
 
 
-
 const book_schema = Joi.object({
     title: Joi.string().required(),
     author: Joi.string().required(),
@@ -12,10 +11,15 @@ const book_schema = Joi.object({
     pages_number: Joi.number().sign('positive').required(),
     category: Joi.string(),
     rating: Joi.number().sign('positive'),
-})
+});
 
-function validateBookSchema(bookInfo) {
-    return book_schema.validate(bookInfo);
+async function validateBookSchema(bookInfo) {
+    return await book_schema.validateAsync(bookInfo)
+        .then(
+            (err) => {
+                errors: err.details[0].message
+            }
+        );
 }
 
 const get_one_book = async (req, res) => {
@@ -24,7 +28,7 @@ const get_one_book = async (req, res) => {
         .then(
             (book) => res.json({
                 "success": true,
-                "book": JSON.stringify(book),
+                "book": book,
             })
         )
         .catch(
@@ -43,7 +47,7 @@ const get_all_books = async (req, res) => {
             (booksList) => {
                 return res.json({
                     "success": true,
-                    "books": JSON.stringify(booksList)
+                    "books": booksList
                 });
             }
         )
@@ -60,22 +64,24 @@ const create_book = async (req, res) => {
         .then((newBook) => {
             res.json({
                 "success": true,
-                "book": JSON.stringify(newBook)
+                "book": newBook
             });
         })
-        .catch((err) => {
-            if (err.toString().includes('ValidationError')) {
-                res.status(400).json({
-                    "success": false,
-                    "message": err.message
-                })
-            } else {
-                res.json({
-                    "success": false,
-                    "message": err.message
-                })
+        .catch(
+            (err) => {
+                if (err.toString().includes('ValidationError')) {
+                    res.status(400).json({
+                        "success": false,
+                        "message": err.message
+                    })
+                } else {
+                    res.json({
+                        "success": false,
+                        "message": err.message
+                    })
+                }
             }
-        });
+        );
 }
 
 const delete_book = async (req, res) => {
@@ -154,5 +160,4 @@ module.exports = {
     delete_book,
     delete_all_books,
     update_book,
-    findOrCreateBook
 }

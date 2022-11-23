@@ -5,51 +5,30 @@ const Orders_books_rel = require('../db/models/orders_books_rel')(require("../db
 
 const { Op } = require('sequelize');
 
-// const Cart = (oldCart) => {
-//     this.items = oldCart.items;
-//     this.totalQuantity = oldCart.totalQuantity;
-//     this.totlaPrice = oldCart.totlaPrice;
-
-//     this.add = async (itemId, storeId) => {
-//         Books_stores_rel.findOne({
-//             where: {
-//                 fk_book_id: itemId,
-//                 fk_store_id: storeId,
-//             }
-//         })
-//             .then((book) => {
-//                 var storedItem = this.items[itemId];
-//                 if (!storedItem) {
-//                     storedItem = this.items[itemId] = {
-//                         itemId: itemId,
-//                         storeId: storeId,
-//                         quantity: 0,
-//                         price: 0,
-//                     };
-//                 }
-//             })
-//             .catch((err) => {
-//                 throw err;
-//             });
-//         storedItem.quantity =
-//             storedItem.price = 
-//     }
-// }
-
 const get_all_orders = async (req, res) => {
-    let buyer_id = req.params.id;
+    let buyer_id = req.user.id;
     return await Orders.findAll({
         where: {
             fk_buyer_id: buyer_id
         }
     })
+        .then((orders) => {
+            return res.json({
+                success: true,
+                orders: orders
+            });
+        })
         .catch((err) => {
-            throw err;
+            return res.json({
+                success: false,
+                message: err
+            });
         });
 }
 
 const buy_book = async (req, res) => {
-    let { bookId, storeId, quantity, userId } = req.body;
+    let userId = req.user.id;
+    let { bookId, storeId, quantity } = req.body;
     if (quantity <= 0) {
         return res.json({
             "success": false,
@@ -78,7 +57,7 @@ const buy_book = async (req, res) => {
                                     if (user) {
                                         await Orders.create({
                                             fk_buyer_id: user.id,
-                                            status: 'confirmed'
+                                            status: 1
                                         })
                                             .then(
                                                 async (order) => {

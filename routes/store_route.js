@@ -1,18 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const stores_controllers = require('../controllers/stores_controller');
+const auth_middleware = require('../middlewares/auth_middleware');
 
-// router.get('/', stores_controllers.get_all_books);
+// This route is for sellers only
 
-router.get('/create/:id', stores_controllers.create_store);
 
-router.post('/addBook', stores_controllers.addBookToStore);
+router.get('/books', stores_controllers.getAllBooksInStore);
 
-router.delete('/deleteBook', stores_controllers.removeBookFromStore);
+router.get('/books/:bookId', stores_controllers.getOneBookInStore);
 
-router.delete('/deleteAll', stores_controllers.deleteAllBooksInStore);
+router.post('/books/add', auth_middleware.verfiyToken, auth_middleware.isSeller, stores_controllers.addBookToStore);
 
-router.put('/updateBook', stores_controllers.updateBookInStore);
+router.post('/create', auth_middleware.verfiyToken, auth_middleware.isSeller, stores_controllers.create_store);
+
+router.delete('/books/delete/:bookId', auth_middleware.verfiyToken, auth_middleware.isSeller, stores_controllers.removeBookFromStore);
+
+router.delete('/books/delete', auth_middleware.verfiyToken, auth_middleware.isSeller, stores_controllers.deleteAllBooksInStore);
+
+router.put('/books/update/:bookId', auth_middleware.verfiyToken, auth_middleware.isSeller, stores_controllers.updateBookInStore);
 
 router.use((error, req, res, next) => {
     res.status(error.status || 500);

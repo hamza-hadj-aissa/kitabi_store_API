@@ -5,7 +5,6 @@ const morgan = require('morgan');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
-const MySQLStore = require('express-mysql-session')(session);
 require('dotenv').config();
 
 
@@ -15,17 +14,18 @@ const book_route = require('./routes/book_route');
 const auth_route = require('./routes/auth_route');
 const store_route = require('./routes/store_route');
 const orders_route = require('./routes/orders_route');
-const shopping_route = require('./routes/shopping_route');
-require('./controllers/utils/passport_auth');
+const shopping_route = require('./routes/cart_route');
+const users_route = require('./routes/users_route');
+require('./bin/utils/passport_auth');
 // const oneYear = 1000 * 60 * 60 * 24 * 365;
 
-let sessionStore = new MySQLStore({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-});
+// let sessionStore = new MySQLStore({
+//     host: process.env.DB_HOST,
+//     port: process.env.DB_PORT,
+//     user: process.env.DB_USER,
+//     password: process.env.DB_PASSWORD,
+//     database: process.env.DB_NAME,
+// });
 
 // Middleware static files
 app.use(express.static(__dirname + '/public'));
@@ -37,7 +37,7 @@ app.use(
         secret: 'thisismysecrctekeyfhrgfgrfrty84fwir767',
         saveUninitialized: false,
         resave: false,
-        store: sessionStore,
+        // store: sessionStore,
     })
 );
 app.use(cookieParser());
@@ -52,17 +52,19 @@ app.get('/', (req, res) => {
 // authentification
 app.use('/auth', auth_route);
 
-// books
-app.use('/books', book_route);
+app.use('/users', users_route);
 
 // books
 app.use('/store', store_route);
+
+// books
+app.use('/books', book_route);
 
 //orders
 app.use('/orders', orders_route);
 
 // shopping
-app.use('/shopping', shopping_route);
+app.use('/cart', shopping_route);
 
 
 // 404 error

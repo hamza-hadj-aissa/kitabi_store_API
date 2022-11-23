@@ -87,18 +87,8 @@ module.exports = (sequelize, DataTypes) => {
           if (!created) {
             await addedBook.increment('quantity', { by: book.quantity });
             await addedBook.set('price', price).save();
-          } else {
-            await Books_stores_rel.create({
-              fk_store_id: storeId,
-              fk_book_id: fk_book_id,
-              quantity: quantity,
-              price: price,
-              discount: discount
-            })
-              .catch((err) => {
-                console.log(err);
-              })
           }
+          return addedBook;
         }
       )
       .catch((err) => {

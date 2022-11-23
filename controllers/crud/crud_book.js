@@ -10,16 +10,29 @@ const book_schema = Joi.object({
     rating: Joi.number().sign('positive'),
 })
 
-function validateBookSchema(bookInfo) {
-    return book_schema.validate(bookInfo);
+async function validateBookSchema(bookInfo) {
+    return await book_schema.validateAsync(bookInfo)
+        .then((result) => {
+            return {
+                value: result,
+                errors: null
+            }
+        })
+        .catch((err) => {
+            return {
+                value: null,
+                errors: err.details[0].message
+            }
+        }
+        );
 }
 
 
-findOrCreateBook = async (newBookInfo) => {
-    let { error, value } = validateBookSchema(newBookInfo);
+const findOrCreateBook = async (newBookInfo) => {
+    let { errors, value } = await validateBookSchema(newBookInfo);
     newBookInfo = value;
-    if (error) {
-        throw new Error(error);
+    if (errors) {
+        throw new Error(errors);
     } else {
         return await Book.findOrCreate({
             where: newBookInfo

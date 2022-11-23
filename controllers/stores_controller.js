@@ -1,45 +1,134 @@
 const Users = require('../db/models/users')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
-
+const CRUD_book = require('./crud/crud_book');
+const Books = require('../db/models/books')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
 const Books_stores_rel = require('../db/models/books_stores_rel')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
 const Stores = require('../db/models/stores')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
-const Books_controller = require('../controllers/books_controller');
 const { Op } = require('sequelize');
 
-const create_store = async (req, res) => {
-    let { id } = req.params;
-    await Users.findOne({
+const getAllBooksInStore = async (req, res) => {
+    let { store_id } = req.body;
+    await Books_stores_rel.findAll({
         where: {
-            id: id
+            fk_store_id: store_id,
+        },
+        attributes: ['fk_book_id'],
+    })
+        .then(
+            async (books_stores_rel) => {
+                let booksList = [];
+                await Promise.all(
+                    books_stores_rel.map(
+                        async bookInStore => {
+                            await Books.findByPk(bookInStore.fk_book_id)
+                                .then(
+                                    (book) => {
+                                        booksList.push(book.dataValues);
+                                    }
+                                )
+                        }
+                    )
+                )
+                    .then(
+                        () => {
+                            res.json({
+                                success: true,
+                                books: booksList
+                            })
+                        }
+                    )
+                    .catch((err) => {
+                        res.json({
+                            success: false,
+                            books: err
+                        })
+                    })
+            }
+        )
+}
+
+const getOneBookInStore = async (req, res) => {
+    let { store_id } = req.body;
+    let { bookId } = req.params;
+    await Books_stores_rel.findOne({
+        where: {
+            [Op.and]: [
+                { fk_store_id: store_id },
+                { fk_book_id: bookId },
+            ]
         }
     })
         .then(
-            async (user) => {
-                if (user) {
-                    await user.create_store()
+            async (book_stores_rel) => {
+                if (book_stores_rel) {
+                    await Books.findByPk(bookId)
                         .then(
-                            (store) => {
-                                if (store) {
+                            (book) => {
+                                if (book) {
                                     res.json({
-                                        "success": true,
+                                        success: true,
+                                        book: book
                                     });
                                 } else {
-                                    res.json({
-                                        "success": false,
-                                        "message": "user is not authorized to have a store"
+                                    res.status(401).json({
+                                        success: false,
+                                        books: "book not found"
                                     });
                                 }
                             }
-                        );
+                        )
                 } else {
-                    res.json({
-                        "success": false,
-                        "message": "user does not exist"
+                    res.status(401).json({
+                        success: false,
+                        books: "book not found"
                     });
                 }
             }
         )
         .catch((err) => {
             res.json({
+                success: false,
+                books: err
+            })
+        });
+}
+
+const create_store = async (req, res) => {
+    let sellerId = req.user.id;
+    let { store_name } = req.body;
+    await Users.findOne({
+        where: {
+            id: sellerId
+        }
+    })
+        .then(
+            async (user) => {
+                if (user) {
+                    await user.create_store(store_name)
+                        .then(
+                            (store) => {
+                                res.json({
+                                    "success": true,
+                                });
+                            }
+                        )
+                        .catch(
+                            err => {
+                                res.status(401).json({
+                                    "success": false,
+                                    "message": err.message
+                                });
+                            }
+                        );
+                } else {
+                    res.status(401).json({
+                        "success": false,
+                        "message": "user not found"
+                    });
+                }
+            }
+        )
+        .catch((err) => {
+            res.status(401).json({
                 "success": false,
                 "message": err.toString()
             });
@@ -47,13 +136,10 @@ const create_store = async (req, res) => {
 }
 
 const addBookToStore = async (req, res) => {
-    let { sellerId, storeId } = req.body;
+    let store_owner_id = req.user.id;
     await Stores.findOne({
         where: {
-            [Op.or]: [
-                { fk_owner_id: sellerId },
-                { id: storeId }
-            ]
+            fk_owner_id: store_owner_id
         }
     })
         .then(
@@ -61,13 +147,13 @@ const addBookToStore = async (req, res) => {
                 if (store) {
                     let { title, author, pages_number, category, rating } = req.body;
                     let newBook = {
-                        title: title,
-                        author: author,
-                        pages_number: pages_number,
-                        category: category,
-                        rating: rating,
+                        title,
+                        author,
+                        pages_number,
+                        category,
+                        rating,
                     }
-                    await Books_controller.findOrCreateBook(newBook)
+                    await CRUD_book.findOrCreateBook(newBook)
                         .then(
                             async (newBook) => {
                                 let book = newBook.dataValues;
@@ -96,7 +182,7 @@ const addBookToStore = async (req, res) => {
                 } else {
                     return res.status(400).json({
                         "success": false,
-                        "message": "store does not exist"
+                        "message": "store not found"
                     });
                 }
             }
@@ -110,18 +196,16 @@ const addBookToStore = async (req, res) => {
 }
 
 const removeBookFromStore = async (req, res) => {
-    let { sellerId, storeId } = req.body;
+    let sellerId = req.user.id;
     await Stores.findOne({
         where: {
-            [Op.or]: [
-                { fk_owner_id: sellerId },
-                { id: storeId }
-            ]
-        }
+            fk_owner_id: sellerId
+        },
     })
         .then(
             async (store) => {
-                await store.remove_book_from_store(req.body.bookId)
+                let { bookId } = req.params;
+                await store.remove_book_from_store(bookId)
                     .then(
                         (result) => res.json({
                             "success": true
@@ -147,19 +231,23 @@ const removeBookFromStore = async (req, res) => {
 }
 
 const updateBookInStore = async (req, res) => {
-    let { sellerId } = req.body;
+    let sellerId = req.user.id;
     await Stores.findOne({
-        where: { fk_owner_id: sellerId }
+        where: {
+            fk_owner_id: sellerId
+        }
     })
         .then(
             async (store) => {
                 if (store) {
-                    let { price, quantity, discount, bookId } = req.body;
+                    console.log(store)
+                    let { bookId } = req.params;
+                    let { price, quantity, discount } = req.body;
                     Books_stores_rel.update(
                         {
                             price,
                             discount,
-                            quantity
+                            quantity,
                         },
                         {
                             where: {
@@ -203,19 +291,36 @@ const updateBookInStore = async (req, res) => {
 
 // TOTDO: it is not working due to cascading problems
 const deleteAllBooksInStore = async (req, res) => {
-    let { sellerId } = req.body;
+    let sellerId = req.user.id;
     await Stores.findOne({
-        where: { fk_owner_id: sellerId }
+        where: {
+            fk_owner_id: sellerId
+        }
     })
         .then(
             async (store) => {
                 if (store) {
-                    await Books_stores_rel.truncate({
+                    // Books_stores_rel.de
+                    await Books_stores_rel.destroy({
                         cascade: true,
                         where: {
                             fk_store_id: store.id
                         },
                     })
+                        .then(
+                            result => {
+                                if (result > 0) {
+                                    res.json({
+                                        success: true
+                                    })
+                                } else {
+                                    res.json({
+                                        success: false,
+                                        message: "there is no books to delete"
+                                    })
+                                }
+                            }
+                        )
                 } else {
                     return res.status(400).json({
                         "success": false,
@@ -239,5 +344,7 @@ module.exports = {
     addBookToStore,
     removeBookFromStore,
     updateBookInStore,
-    deleteAllBooksInStore
+    deleteAllBooksInStore,
+    getAllBooksInStore,
+    getOneBookInStore
 }

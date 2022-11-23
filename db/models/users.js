@@ -72,15 +72,17 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Users',
   });
 
-  Users.prototype.create_store = async function () {
+  Users.prototype.create_store = async function (store_name) {
     const Stores = require('./stores')(sequelize, DataTypes);
-    if (this.user_type >= 1) {
+    if (this.user_type == 1) {
       return await Stores.findOrCreate({
         where: {
           fk_owner_id: this.id,
         },
-        fk_owner_id: this.id,
-        store_name: 'store',
+        defaults: {
+          fk_owner_id: this.id,
+          store_name: store_name,
+        }
       })
         .then(
           ([instance, created]) => {
@@ -95,19 +97,11 @@ module.exports = (sequelize, DataTypes) => {
             throw err;
           }
         );
-      // return await this.createStores({
-      //   store_name: 'store',
-      // })
-      //   .then(
-      //     (store) => store
-      //   )
-      //   .catch(
-      //     (err) => {
-      //       throw err;
-      //     }
-      //   );
+    } else {
+      throw new Error('user is not authorized to have a store');
     }
-    return null;
   }
+
+
   return Users;
 };

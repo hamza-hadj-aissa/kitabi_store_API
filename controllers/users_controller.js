@@ -17,7 +17,7 @@ function validateUserSchema(userInfo) {
     return user_schema.validate(userInfo);
 }
 
-async function deleteUser(res, id) {
+async function deleteUser(id) {
     return await Users.destroy({
         where: {
             id: id,
@@ -26,24 +26,24 @@ async function deleteUser(res, id) {
         .then(
             (numberOfDeletedRows) => {
                 if (numberOfDeletedRows > 0) {
-                    return res.json({
+                    return {
                         "success": true,
-                    });
+                    }
                 } else {
-                    return res.json({
+                    return {
                         "success": false,
                         "message": "the user you want to delete does not exist"
-                    });
+                    };
                 }
 
             }
         )
         .catch(
             (err) => {
-                return res.json({
+                return {
                     "success": false,
                     "message": err
-                });
+                };
             }
         );
 }
@@ -82,7 +82,7 @@ const create_user = async (req, res) => {
 }
 
 const delete_user = async (req, res) => {
-    let adminId = req.body.id;
+    let adminId = req.user.id;
     await Users.findByPk(adminId, {
         attributes: [
             'user_type'
@@ -93,7 +93,7 @@ const delete_user = async (req, res) => {
                 if (admin) {
                     if (admin.user_type == 2) {
                         let deletedUserId = req.params.id;
-                        return await deleteUser(res, deletedUserId);
+                        return res.json(await deleteUser(deletedUserId));
                     } else {
                         return res.status(403).json({
                             "success": false,
@@ -101,7 +101,7 @@ const delete_user = async (req, res) => {
                         });
                     }
                 } else {
-                    return res.status(400).json({
+                    return res.status(401).json({
                         "success": false,
                         "message": "user does not exist"
                     });
@@ -127,7 +127,6 @@ const get_user = async (req, res) => {
     })
         .then(
             (user) => {
-                user = JSON.stringify(user);
                 if (user) {
                     return res.json({
                         "success": true,
@@ -159,7 +158,7 @@ const get_all_users = async (req, res) => {
     })
         .then(
             (users) => {
-                users = JSON.stringify(users);
+
                 if (users) {
                     return res.json({
                         "success": true,
