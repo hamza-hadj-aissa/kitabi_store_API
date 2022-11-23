@@ -38,11 +38,9 @@ fs
   });
 
 // This is used to sync the DB with new changes
-// Object.keys(db).forEach(async modelName => {
-//   await db[modelName].sync({
-//     alter: true
-//   });
-// });
+Object.keys(db).forEach(async modelName => {
+  await db[modelName].sync({});
+});
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

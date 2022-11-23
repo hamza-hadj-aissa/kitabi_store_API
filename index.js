@@ -1,4 +1,3 @@
-const { response } = require('express');
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
@@ -16,16 +15,6 @@ const store_route = require('./routes/store_route');
 const orders_route = require('./routes/orders_route');
 const shopping_route = require('./routes/cart_route');
 const users_route = require('./routes/users_route');
-require('./bin/utils/passport_auth');
-// const oneYear = 1000 * 60 * 60 * 24 * 365;
-
-// let sessionStore = new MySQLStore({
-//     host: process.env.DB_HOST,
-//     port: process.env.DB_PORT,
-//     user: process.env.DB_USER,
-//     password: process.env.DB_PASSWORD,
-//     database: process.env.DB_NAME,
-// });
 
 // Middleware static files
 app.use(express.static(__dirname + '/public'));
