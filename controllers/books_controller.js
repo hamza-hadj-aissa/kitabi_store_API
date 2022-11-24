@@ -59,6 +59,26 @@ const get_all_books = async (req, res) => {
         )
 }
 
+const get_books_by_category = async (req, res) => {
+    await CRUD_book.findAllBooksByCategory(
+        req.query.category,
+    )
+        .then(
+            (booksList) => {
+                return res.json({
+                    "success": true,
+                    "books": booksList
+                });
+            }
+        )
+        .catch(
+            (err) => res.json({
+                "success": false,
+                "message": err.message
+            })
+        )
+}
+
 const create_book = async (req, res) => {
     await CRUD_book.findOrCreateBook(req.body)
         .then((newBook) => {
@@ -160,4 +180,5 @@ module.exports = {
     delete_book,
     delete_all_books,
     update_book,
+    get_books_by_category
 }

@@ -31,6 +31,7 @@ async function validateBookSchema(bookInfo) {
 const findOrCreateBook = async (newBookInfo) => {
     let { errors, value } = await validateBookSchema(newBookInfo);
     newBookInfo = value;
+    console.log(newBookInfo)
     if (errors) {
         throw new Error(errors);
     } else {
@@ -73,7 +74,27 @@ const findOneBook = async (bookId) => {
 }
 
 const findAllBooks = async () => {
-    return await Book.findAll()
+    return await Book.findAll({
+        where: {
+            category,
+        }
+    })
+        .then(
+            (booksList) => booksList
+        )
+        .catch(
+            (err) => {
+                throw err;
+            }
+        );
+}
+
+const findAllBooksByCategory = async (category) => {
+    return await Book.findAll({
+        where: {
+            category,
+        }
+    })
         .then(
             (booksList) => booksList
         )
@@ -143,5 +164,6 @@ module.exports = {
     updateBook,
     findOneBook,
     findAllBooks,
-    deleteAllBooks
+    deleteAllBooks,
+    findAllBooksByCategory
 }

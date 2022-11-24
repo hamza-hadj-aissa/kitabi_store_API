@@ -4,7 +4,11 @@ const book_controllers = require('../controllers/books_controller');
 
 // This route is for all type of users
 
+
+// router.get('/?', book_controllers.get_books_by_category);
+
 router.get('/', book_controllers.get_all_books);
+
 
 router.get('/:id', book_controllers.get_one_book);
 

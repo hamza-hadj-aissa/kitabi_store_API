@@ -11,6 +11,11 @@ router.post('/login', auth_middleware.isLoggedIn, auth_controller.login);
 
 router.get('/logout', auth_middleware.isNotLoggedIn, auth_controller.logout);
 
+router.get('/confirm-email?', auth_controller.verifyEmail);
+
+router.post('/resend-confirmation-email', auth_controller.resendVerificationEmail)
+
+router.put('/change-password', auth_middleware.verfiyToken, auth_controller.changePassword);
 
 router.use((error, req, res, next) => {
     res.status(error.status || 500);

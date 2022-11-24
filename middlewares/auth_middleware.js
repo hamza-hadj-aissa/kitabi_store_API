@@ -14,12 +14,20 @@ const verfiyToken = (req, res, next) => {
     // verfiy the cookie
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (!err) {
-            let user = {
-                id: decoded.id,
-                user_type: decoded.user_type,
-            };
-            req.user = user;
-            next();
+            if (decoded.email_verified) {
+                let user = {
+                    id: decoded.id,
+                    user_type: decoded.user_type,
+                    email_verified: decoded.email_verified,
+                };
+                req.user = user;
+                next();
+            } else {
+                res.clearCookie('token');
+                return res.status(403).json({
+                    message: "email is not verified"
+                });
+            }
         } else {
             res.clearCookie('token');
             return res.sendStatus(403);
