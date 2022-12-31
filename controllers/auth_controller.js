@@ -32,7 +32,7 @@ const user_schema = Joi.object({
     // birth_date: Joi.date().required(),
     email: Joi.string().email().required(),
     phone_number: Joi.number().required(),
-    address: Joi.string().optional(),
+    address: Joi.string().required(),
     password: Joi.string().min(8).required(),
     confirmPassword: Joi.string().min(8).required(),
     // gender: Joi.number().valid(0, 1).required(),

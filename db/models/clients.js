@@ -81,7 +81,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         address: {
-            allowNull: true,
+            allowNull: false,
             type: DataTypes.STRING
         },
         email_verified: {
