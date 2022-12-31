@@ -45,11 +45,17 @@ node models/index.js
 ```bash
 sequelize db:seed:all
 ```
-5. Finally, navigate back to the root project directory and start the server by this command:
+5. Next, go back to the root directory and run this command to serve images to the front app:
 ```bash
-cd .. && npm start
+cd ..
+http-server
 ```
-And here we go, API is running
+
+6. Finally, start the server by typing this command:
+```bash
+npm start
+```
+And voila! API is running
 
 ## 🔗 Contact
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/hadjaissahamza/)
