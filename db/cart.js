@@ -8,31 +8,31 @@ class Cart {
         }
     }
 
-    addBookToCart(bookInfo) {
+    addBookToCart(bookId) {
         let bookFound = false;
         this.books.forEach(book => {
-            if (book.id == bookInfo.id) {
-                book.quantity++;
+            if (book.id === bookId) {
+                // book.quantity++;
                 bookFound = true;
                 return;
             }
         });
         if (!bookFound) {
-            this.books.push(bookInfo);
+            this.books.push({ id: bookId, quantity: 1 });
         }
     }
 
-    removeBookFromCart(bookInfo) {
+    removeBookFromCart(bookId) {
         this.books.forEach(book => {
-            if (book.id == bookInfo.id) {
-                book.quantity--;
-                if (book.quantity <= 0) {
-                    this.books.filter((value, index, err) => {
-                        if (value.id == book.id) {
-                            this.books.splice(index, 1);
-                        }
-                    })
-                }
+            if (book.id == bookId) {
+                // book.quantity--;
+                // if (book.quantity <= 0) {
+                this.books.filter((value, index, err) => {
+                    if (value.id === book.id) {
+                        this.books.splice(index, 1);
+                    }
+                })
+                // }
                 return;
             }
         });

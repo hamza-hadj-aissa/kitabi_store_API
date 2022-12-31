@@ -1,29 +1,45 @@
 // imports
 const Users = require('../db/models/users')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
+const Clients = require('../db/models/clients')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
+const Admins = require('../db/models/admins')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
+
 const Joi = require('joi');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config('../.env');
 const fs = require('fs');
 const handlebars = require('handlebars');
 const path = require('path');
 
 // consts
-const verifyEmailBaseUrl = 'http://' + process.env.HOST + ':' + process.env.PORT + '/auth/confirm-email';
+const verifyEmailBaseUrl = 'http://localhost:3000/auth/email-verification/';
 const password_schema = Joi.object({
     password: Joi.string().min(8).required(),
 });
+
+const admin_schema = Joi.object({
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().min(8).required(),
+    confirmPassword: Joi.string().min(8).required(),
+});
+
 const user_schema = Joi.object({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
-    birth_date: Joi.date().required(),
+    // birth_date: Joi.date().required(),
     email: Joi.string().email().required(),
     phone_number: Joi.number().required(),
-    address: Joi.string().required(),
+    address: Joi.string().optional(),
     password: Joi.string().min(8).required(),
-    user_type: Joi.number().valid(0, 1, 2).required(),
-    gender: Joi.number().valid(0, 1).required(),
+    confirmPassword: Joi.string().min(8).required(),
+    // gender: Joi.number().valid(0, 1).required(),
+});
+
+const refresh_token_schema = Joi.object({
+    refreshToken: Joi.string().required()
 });
 
 // functions
@@ -41,7 +57,7 @@ var readHTMLFile = function (path, callback) {
 const sendVerificationEmail = async (email) => {
     const emailVerificationToken = jwt.sign({
         email
-    }, process.env.JWT_SECRET, {
+    }, process.env.EMAIL_JWT_SECRET, {
         expiresIn: 3600, // 1 hour
     });
 
@@ -54,10 +70,9 @@ const sendVerificationEmail = async (email) => {
         }
         var template = handlebars.compile(html);
         var replacements = {
-            link: verifyEmailBaseUrl + '?signature=' + emailVerificationToken
+            link: `${verifyEmailBaseUrl}${emailVerificationToken}`
         };
         var htmlToSend = template(replacements);
-
         let mailTransporter = nodemailer.createTransport({
             service: "gmail",
             host: 'smtp.gmail.com',
@@ -78,6 +93,11 @@ const sendVerificationEmail = async (email) => {
             priority: "high",
             html: htmlToSend,
         })
+            .then((result) => {
+                if (!result.accepted.includes(email)) {
+                    throw Error('email was not sent successfully');
+                }
+            })
             .catch(
                 (err) => {
                     console.log(err);
@@ -87,8 +107,23 @@ const sendVerificationEmail = async (email) => {
     });
 }
 
+async function validateAdminSchema(userInfo) {
+    if (userInfo.password !== userInfo.confirmPassword) {
+        return {
+            errors: "passwords don\'t match"
+        }
+    }
+    return await admin_schema.validateAsync(userInfo)
+        .catch(
+            (err) => {
+                return {
+                    "errors": err.details[0].message
+                }
+            }
+        );
+}
 
-async function validateUserSchema(userInfo) {
+async function validateClientSchema(userInfo) {
     if (userInfo.password !== userInfo.confirmPassword) {
         return {
             errors: "passwords don\'t match"
@@ -98,7 +133,18 @@ async function validateUserSchema(userInfo) {
         .catch(
             (err) => {
                 return {
-                    "errors": err.details[0].message
+                    errors: err.details[0].message
+                }
+            }
+        );
+}
+
+async function validateRefreshTokenSchema(tokenInfo) {
+    return await refresh_token_schema.validateAsync(tokenInfo)
+        .catch(
+            (err) => {
+                return {
+                    errors: err.details[0].message
                 }
             }
         );
@@ -112,7 +158,6 @@ async function validatePasswordSchema(newPassword, newConfirmPassword) {
     }
     return await password_schema.validateAsync({
         password: newPassword,
-        confirmPassword: newConfirmPassword
     })
         .catch(
             (err) => {
@@ -123,8 +168,8 @@ async function validatePasswordSchema(newPassword, newConfirmPassword) {
         );
 }
 
-const register = async (req, res) => {
-    let { errors } = await validateUserSchema(req.body);
+const register_client = async (req, res) => {
+    let { errors } = await validateClientSchema(req.body);
     if (errors) {
         return res.json({
             "success": false,
@@ -132,10 +177,38 @@ const register = async (req, res) => {
         });
     } else {
         let userInfo = req.body;
-        await Users.register_user(userInfo)
+        await Clients.register_user(userInfo)
             .then(
                 async () => {
                     await sendVerificationEmail(userInfo.email);
+                    res.json({
+                        success: true,
+                    });
+                }
+            )
+            .catch(
+                (err) => {
+                    res.status(401).json({
+                        success: false,
+                        message: err.message,
+                    });
+                }
+            );
+    }
+}
+
+const register_admin = async (req, res) => {
+    let { errors } = await validateAdminSchema(req.body);
+    if (errors) {
+        return res.json({
+            "success": false,
+            "message": errors,
+        });
+    } else {
+        let userInfo = req.body;
+        await Admins.register_admin(userInfo)
+            .then(
+                async () => {
                     res.json({
                         success: true,
                     });
@@ -152,21 +225,60 @@ const register = async (req, res) => {
     }
 }
 
-const login = async (req, res) => {
+const login_client = async (req, res) => {
     let userInfo = req.body;
-    await Users.login_user(userInfo)
+    await Clients.login_user(userInfo)
         .then(
-            token => {
-                if (token) {
-                    res.cookie('token', token, { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 });
+            ({ id, accessToken, refreshToken }) => {
+                if ({ id, accessToken, refreshToken }) {
+                    res.cookie('refreshToken', refreshToken, {
+                        httpOnly: true,
+                        maxAge: 1000 * 60 * 60 * 24 * 3
+                    });
+                    // res.cookie('accessToken', accessToken, {
+                    //     maxAge: 1000 * 60 * 15
+                    // });
                     res.json({
                         success: true,
+                        id,
+                        role: 'client',
+                        accessToken
                     });
                 }
             }
         )
         .catch(
-            err => res.json({
+            err => res.status(401).json({
+                success: false,
+                message: err.message,
+            })
+        );
+}
+
+const login_admin = async (req, res) => {
+    let userInfo = req.body;
+    await Admins.login_admin(userInfo)
+        .then(
+            ({ id, accessToken, refreshToken }) => {
+                if ({ id, accessToken, refreshToken }) {
+                    res.cookie('refreshToken', refreshToken, {
+                        httpOnly: true,
+                        maxAge: 1000 * 60 * 60 * 24
+                    });
+                    // res.cookie('accessToken', accessToken, {
+                    //     maxAge: 1000 * 60 * 15
+                    // });
+                    res.json({
+                        success: true,
+                        id,
+                        role: 'admin',
+                        accessToken
+                    });
+                }
+            }
+        )
+        .catch(
+            err => res.status(401).json({
                 success: false,
                 message: err.message,
             })
@@ -175,7 +287,7 @@ const login = async (req, res) => {
 
 const verifyEmail = async (req, res, next) => {
     let { signature } = req.query;
-    await Users.verify_user(signature)
+    await Clients.verify_user(signature)
         .then(
             (user_verified) => {
                 if (user_verified) {
@@ -215,36 +327,61 @@ const resendVerificationEmail = async (req, res) => {
         .then(
             async (user) => {
                 if (user) {
-                    if (user.email_verified) {
-                        res.status(401).json({
-                            success: false,
-                            message: "email is already verified"
-                        })
-                    } else {
-                        await sendVerificationEmail(user.email)
-                            .then(() => {
-                                res.json({
-                                    success: true
-                                })
-                            });
-                    }
+                    await Clients.findOne({
+                        where: {
+                            fk_user_id: user.id
+                        }
+                    })
+                        .then(
+                            async (client) => {
+                                if (client) {
+                                    if (client.email_verified) {
+                                        res.status(401).json({
+                                            success: false,
+                                            message: "Email is already verified"
+                                        })
+                                    } else {
+                                        await sendVerificationEmail(user.email)
+                                            .then(() => {
+                                                res.json({
+                                                    success: true
+                                                })
+                                            })
+                                            .catch((err) => {
+                                                throw err
+                                            });
+                                    }
+                                } else {
+                                    res.status(401).json({
+                                        success: false,
+                                        message: "User does not exist"
+                                    })
+                                }
+                            }
+                        );
                 } else {
                     res.status(401).json({
                         success: false,
-                        message: "user does not exist"
+                        message: "User does not exist"
                     })
                 }
             }
         )
-        .catch((err) => res.json({
-            success: false,
-            message: err
-        }));
+        .catch(
+            (err) => {
+                console.log(err)
+                return res.status(401).json({
+                    success: false,
+                    message: err
+                });
+            }
+        );
 }
 
 const changePassword = async (req, res) => {
     let { oldPassword, newPassword, newConfirmPassword } = req.body;
     let { id } = req.user;
+    console.log({ oldPassword, newPassword, newConfirmPassword })
     let { errors } = await validatePasswordSchema(newPassword, newConfirmPassword);
     if (errors) {
         res.json({
@@ -255,6 +392,7 @@ const changePassword = async (req, res) => {
         await Users.change_password(id, oldPassword, newPassword)
             .then(
                 (result) => {
+                    console.log('password updated successfully');
                     res.json({
                         success: true
                     });
@@ -269,23 +407,21 @@ const changePassword = async (req, res) => {
     }
 }
 
-// const resetPassword = async (req, res) => {
-//     sendVerificationEmail()
-// }
-
 const logout = (req, res, next) => {
-    res.clearCookie('token');
+    req.user = null;
+    res.clearCookie('refreshToken');
     res.json({
-        "success": res.cookie.token == null
+        success: res.cookie?.refreshToken == null
     });
 }
 
-
 module.exports = {
-    register,
-    login,
+    register_admin,
+    register_client,
+    login_admin,
+    login_client,
     logout,
     verifyEmail,
     resendVerificationEmail,
-    changePassword
+    changePassword,
 }

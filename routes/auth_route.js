@@ -3,21 +3,35 @@ const router = express.Router();
 const auth_controller = require('../controllers/auth_controller');
 const auth_middleware = require('../middlewares/auth_middleware');
 
-// This route is for all type of users
+// These routes for admins
+router.post('/admin/register', auth_middleware.userIsNotLoggedIn, auth_controller.register_admin);
+router.post('/admin/login', auth_middleware.userIsNotLoggedIn, auth_controller.login_admin);
 
-router.post('/register', auth_middleware.isLoggedIn, auth_controller.register);
 
-router.post('/login', auth_middleware.isLoggedIn, auth_controller.login);
+// This route is for clients
 
-router.get('/logout', auth_middleware.isNotLoggedIn, auth_controller.logout);
+router.post('/register', auth_middleware.userIsNotLoggedIn, auth_controller.register_client);
+
+router.post('/login', auth_middleware.userIsNotLoggedIn, auth_controller.login_client);
+
+router.delete('/logout', auth_middleware.userIsLoggedIn, auth_controller.logout);
 
 router.get('/confirm-email?', auth_controller.verifyEmail);
 
 router.post('/resend-confirmation-email', auth_controller.resendVerificationEmail)
 
-router.put('/change-password', auth_middleware.verfiyToken, auth_controller.changePassword);
+router.put('/change-password', auth_middleware.verfiyClientAccessToken, auth_controller.changePassword);
+
+router.put('/admin/change-password', auth_middleware.verfiyAdminAccessToken, auth_controller.changePassword);
+
+// refresh client token
+router.get('/refreshToken', auth_middleware.refreshClientAccessToken)
+
+// refresh admin token
+router.get('/admin/refreshToken', auth_middleware.refreshAdminAccessToken)
 
 router.use((error, req, res, next) => {
+
     res.status(error.status || 500);
     res.json({
         error: {

@@ -1,4 +1,4 @@
-const Books_stores_rel = require('../db/models/books_stores_rel')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
+const Books = require('../db/models/books')(require("../db/models/index").sequelize, require('sequelize').DataTypes);
 const Cart = require('../db/cart');
 
 
@@ -18,24 +18,17 @@ const getCart = (req, res) => {
 }
 
 const addBookToCart = async (req, res) => {
-    let { id, price, quantity, storeId } = req.body;
-    let bookInfo = {
-        id, price, quantity, storeId
-    }
-
+    let { bookId } = req.params;
+    bookId = parseInt(bookId);
     let cart = new Cart(req.session.cart);
-    if (bookInfo) {
-        await Books_stores_rel.findOne({
-            where: {
-                fk_store_id: bookInfo.storeId,
-                fk_book_id: bookInfo.id
-            }
-        })
+    if (bookId) {
+        bookId = parseInt(bookId);
+        await Books.findByPk(bookId)
             .then(
                 (foundBook) => {
                     if (foundBook) {
-                        cart.addBookToCart(bookInfo);
-                        req.session.cart = cart.books
+                        cart.addBookToCart(bookId);
+                        req.session.cart = cart.books;
                         return res.json({
                             success: true,
                             cart: cart.books
@@ -56,22 +49,16 @@ const addBookToCart = async (req, res) => {
 }
 
 const removeBookFromCart = async (req, res) => {
-    let { id, price, quantity, storeId } = req.body;
-    let bookInfo = {
-        id, price, quantity, storeId
-    }
+    let { bookId } = req.params;
+    bookId = parseInt(bookId);
     let cart = new Cart(req.session.cart);
-    if (bookInfo) {
-        await Books_stores_rel.findOne({
-            where: {
-                fk_store_id: bookInfo.storeId,
-                fk_book_id: bookInfo.id
-            }
-        })
+    if (bookId) {
+        bookId = parseInt(bookId);
+        await Books.findByPk(bookId)
             .then(
                 (foundBook) => {
                     if (foundBook) {
-                        cart.removeBookFromCart(bookInfo);
+                        cart.removeBookFromCart(bookId);
                         req.session.cart = cart.books;
                         return res.json({
                             success: true,

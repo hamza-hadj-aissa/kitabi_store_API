@@ -2,7 +2,28 @@
 const {
   Model
 } = require('sequelize');
+
+const deleteBookImage = async (fileName) => {
+  console.log(fileName);
+  const fs = require('fs');
+  const path = require('path');
+  fs.readdir(path.join(__dirname, '../../public/images'), (err, files) => {
+    if (!err) {
+      files.forEach(
+        async (file) => {
+          if (file.includes(fileName)) {
+            console.log('file found', file);
+            fs.unlink(path.join(__dirname, `../../public/images/`, file), (err) => {
+              console.log(err);
+            });
+          }
+        });
+    }
+  })
+}
+
 module.exports = (sequelize, DataTypes) => {
+  const Categories = require('./categories')(sequelize, DataTypes);
 
   class Books extends Model { }
   Books.init({
@@ -30,35 +51,6 @@ module.exports = (sequelize, DataTypes) => {
         min: 0
       }
     },
-    category: {
-      allowNull: false,
-      type: DataTypes.ENUM(
-        'Adventure',
-        'Classics',
-        // 'Crime',
-        // 'Fairy tales, fables, and folk tales',
-        // 'Fantasy',
-        // 'Historical fiction',
-        // 'Horror',
-        // 'Humour and satire',
-        // 'Literary fiction',
-        // 'Mystery',
-        // 'Poetry',
-        // 'Plays',
-        // 'Romance',
-        // 'Science fiction',
-        // 'Short stories',
-        // 'Thrillers',
-        // 'War',
-        // 'Women\'s fiction',
-        // 'Young adult',
-        // 'Autobiography and memoir',
-        // 'Biography',
-        // 'Essays',
-        // 'Non fiction novel',
-        // 'Self help',
-      ),
-    },
     rating: {
       type: DataTypes.FLOAT,
       validate: {
@@ -66,13 +58,163 @@ module.exports = (sequelize, DataTypes) => {
         max: 5,
       }
     },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 0
+      },
+    },
+    price: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      validate: {
+        min: 0
+      },
+    },
+    discount: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+      validate: {
+        min: 0
+      },
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    }
   }, {
     sequelize,
     freezeTableName: true,
     modelName: 'Books',
   });
 
+  Books.create_book = async (newBookInfo) => {
+    let { title, author, pages_number, fk_category_id, price, discount, quantity, image, rating, description } = newBookInfo;
+    return await Books.findOrCreate({
+      where: {
+        title, author, pages_number, fk_category_id
+      },
+      defaults: {
+        title, author, pages_number, fk_category_id, price, discount, quantity, image, rating, description
+      },
+    })
+      .then(
+        async ([book, created]) => {
+          if (!created) {
+            await book.set('price', price).save();
+            await book.set('discount', discount).save();
+            await book.increment('quantity', { by: quantity })
+              .then((result) => result);
+          }
+          return book;
+        }
+      )
+      .catch(
+        (err) => {
+          throw err;
+        }
+      );
+  }
 
+  const deleteAllBooks = async () => {
+    await Books.destroy()
+      .catch(
+        (err) => {
+          throw err;
+        }
+      );
+  }
 
+  Books.update_book = async (bookId, bookInfo) => {
+    return await Books.findOne({
+      where: {
+        id: bookId
+      },
+    })
+      .then(
+        async (book) => {
+          if (book) {
+            return await book.update(bookInfo)
+              .then((updatedBook) => {
+                return updatedBook;
+              });
+          } else {
+            throw Error('book not found');
+          }
+        }
+      )
+      .catch(
+        (err) => {
+          throw err;
+        }
+      );
+  }
+
+  Books.delete_book = async (bookId) => {
+    return await Books.findByPk(bookId)
+      .then(
+        async (book) => {
+          if (book) {
+            return await book.destroy()
+              .then(
+                async (result) => {
+                  if (result === 0) {
+                    throw new Error('book does not exist');
+                  }
+                  await deleteBookImage(book.image);
+                  return;
+                }
+              ).catch(
+                (err) => {
+                  throw err;
+                }
+              );
+          } else {
+            throw Error('Book does not exist');
+          }
+        }
+      )
+
+  }
+
+  Books.buy_book = async (bookId, quantity) => {
+    return await Books.findByPk(bookId)
+      .then(
+        async (book) => {
+          if (book) {
+            if (book.quantity >= quantity) {
+              return await book.decrement('quantity', { by: quantity })
+                .then(
+                  async (result) => await Books.findByPk(bookId)
+                );
+            } else {
+              throw Error(`only ${book.quantity} is left of ${book.title}`);
+            }
+          } else {
+            throw Error('book does not exist');
+          }
+        }
+      )
+      .catch((err) => {
+        throw err;
+      });
+  }
+  Categories.hasMany(Books, {
+    foreignKey: 'fk_category_id',
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE'
+  });
+  Books.belongsTo(Categories, {
+    foreignKey: 'fk_category_id',
+    onDelete: 'SET NULL',
+    onUpdate: 'CASCADE'
+  });
   return Books;
-};
+}
+
+
+
+
+

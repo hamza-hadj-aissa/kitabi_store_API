@@ -7,9 +7,9 @@ const cart_controller = require('../controllers/cart_controller');
 
 router.get('/', cart_controller.getCart);
 
-router.post('/add-to-cart', cart_controller.addBookToCart);
+router.get('/add-to-cart/:bookId', cart_controller.addBookToCart);
 
-router.delete('/remove-from-cart', cart_controller.removeBookFromCart);
+router.delete('/remove-from-cart/:bookId', cart_controller.removeBookFromCart);
 
 router.use((error, req, res, next) => {
     res.status(error.status || 500);

@@ -6,25 +6,14 @@ const Sequelize = require('sequelize');
 const process = require('process');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-require('dotenv').config();
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config, {
-    define: {
-      timestamps: true,
-      freezeTableName: true,
-    },
-  });
+  sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config, {
-    define: {
-      timestamps: true,
-      freezeTableName: true,
-    },
-  });
+  sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
 
 fs
@@ -37,10 +26,28 @@ fs
     db[model.name] = model;
   });
 
-// This is used to sync the DB with new changes
-Object.keys(db).forEach(async modelName => {
-  await db[modelName].sync({});
-});
+
+const createdTables = async () => {
+  // this order must be maintained
+  await db['Users'].sync();
+  await db['Categories'].sync();
+  await db['Books'].sync();
+  await db['Admins'].sync();
+  await db['Clients'].sync();
+  await db['Orders'].sync();
+  await db['RefreshTokens'].sync();
+  await db['Orders_books_rel'].sync();
+  await db['Receipts'].sync();
+}
+
+createdTables();
+// Object.keys(db).forEach(
+//   async modelName => {
+//     await db[modelName].sync({
+//       // alter: true
+//     });
+//   }
+// );
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
