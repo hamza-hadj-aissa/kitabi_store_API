@@ -4,11 +4,11 @@ This is an ecommerce website API.
 
 There's 3 types of users. Guest / Client / Admin.
 
-Guest user could view all books and stores, he could also manage his cart. Without having an account necessarily.
+*Guest user could view all books and stores, he could also manage his cart. Without having an account necessarily.
 
-A client could buy books, view his account and edit it, track his orders status.
+*A client could buy books, view his account and edit it, track his orders status.
 
-A seller could:
+*A seller could:
 
 -   Add and supply books with their specific prices, discount and quantity.
 -   Removing and updating books.
