@@ -3,25 +3,6 @@ const {
   Model
 } = require('sequelize');
 
-const deleteBookImage = async (fileName) => {
-  console.log(fileName);
-  const fs = require('fs');
-  const path = require('path');
-  fs.readdir(path.join(__dirname, '../../public/images'), (err, files) => {
-    if (!err) {
-      files.forEach(
-        async (file) => {
-          if (file.includes(fileName)) {
-            console.log('file found', file);
-            fs.unlink(path.join(__dirname, `../../public/images/`, file), (err) => {
-              console.log(err);
-            });
-          }
-        });
-    }
-  })
-}
-
 module.exports = (sequelize, DataTypes) => {
   const Categories = require('./categories')(sequelize, DataTypes);
 
@@ -136,6 +117,7 @@ module.exports = (sequelize, DataTypes) => {
       .then(
         async (book) => {
           if (book) {
+            await Books.deleteBookImage(book?.image);
             return await book.update(bookInfo)
               .then((updatedBook) => {
                 return updatedBook;
@@ -163,7 +145,7 @@ module.exports = (sequelize, DataTypes) => {
                   if (result === 0) {
                     throw new Error('book does not exist');
                   }
-                  await deleteBookImage(book.image);
+                  await Books.deleteBookImage(book.image);
                   return;
                 }
               ).catch(
@@ -201,6 +183,23 @@ module.exports = (sequelize, DataTypes) => {
         throw err;
       });
   }
+
+  Books.deleteBookImage = async (fileName) => {
+    const fs = require('fs');
+    const path = require('path');
+    fs.readdir(path.join(__dirname, '../../public/images'), (err, files) => {
+      if (!err) {
+        files.forEach(
+          async (file) => {
+            if (file.includes(fileName)) {
+              fs.unlink(path.join(__dirname, `../../public/images/`, file), (err) => {
+              });
+            }
+          });
+      }
+    })
+  }
+
   Categories.hasMany(Books, {
     foreignKey: 'fk_category_id',
     onDelete: 'SET NULL',

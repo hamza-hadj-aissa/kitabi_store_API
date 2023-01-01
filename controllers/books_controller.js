@@ -189,7 +189,6 @@ const delete_book = async (req, res) => {
 const update_book = async (req, res) => {
     // retreiving book's id from request's query parameters
     let bookId = req.params.id;
-    console.log('file', req?.file?.filename, 'image', req.body?.image, '55', req?.file?.filename ?? req.body?.image)
     // check if the book with the received data already exists before updating it
     await Books.findOne({
         where: {
@@ -215,6 +214,7 @@ const update_book = async (req, res) => {
         .then(
             async (book) => {
                 if (book) {
+                    req?.file?.filename ? await Books.deleteBookImage(req?.file?.filename) : null;
                     // book exits, no need to update it
                     return res.json({
                         success: true
@@ -236,6 +236,7 @@ const update_book = async (req, res) => {
                     // validate book info before inserting it to the DB
                     let { errors } = await validateBookSchema(bookInfo);
                     if (errors) {
+                        req?.file?.filename ? await Books.deleteBookImage(req?.file?.filename) : null;
                         // errors has been detected in book info
                         res.status(401).json({
                             success: false,
@@ -255,7 +256,8 @@ const update_book = async (req, res) => {
             }
         )
         .catch(
-            (err) => {
+            async (err) => {
+                req?.file?.filename ? await Books.deleteBookImage(req?.file?.filename) : null;
                 res.status(401).json({
                     success: false,
                     message: err.message
