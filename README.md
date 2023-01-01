@@ -79,7 +79,7 @@ http-server
 ```bash
 npm start
 ```
-And voila! API is running
+And voila! API is running!
 
 ## 🔗 Contact
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/hadjaissahamza/)
