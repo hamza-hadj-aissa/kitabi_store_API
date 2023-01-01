@@ -15,7 +15,11 @@ There's 3 types of users. Guest / Client / Admin.
   -   Remove and update books.
 
 
-## Project setup
+## Installation
+Clone this project to your host by running:
+```bash
+https://github.com/hamza-hadj-aissa/kitabi_store_API.git
+```
 
 ### Environment Variables
 Copy the .env file sample and add the envirement variables on your host
