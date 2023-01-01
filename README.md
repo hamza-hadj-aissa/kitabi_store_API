@@ -1,7 +1,8 @@
-# books_store API
+# Kitabi Store API
 
-This is an ecommerce website API to sell books online.
+This the backend API for [Kitabi Store website](https://github.com/hamza-hadj-aissa/kitabi_store_interface). It's a website that manages an online books store.
 
+## Features
 There's 3 types of users. Guest / Client / Admin.
 
 * Guest user could view all books and stores, he could also manage his cart. Without having an account necessarily.
@@ -13,19 +14,38 @@ There's 3 types of users. Guest / Client / Admin.
   -   Add and supply books with their specific prices, discount and quantity.
   -   Remove and update books.
 
-# Project setup
+
+## Project setup
+
+### Environment Variables
+Copy the .env file sample and add the envirement variables on your host
+```bash
+cp .env.sample .env
+```
+To run this project, you will need to add the following environment variables to your .env file
+
+* In order to run email verification, you must provide your email and your password (You don't have to put your own personal password. Instead, you should use another password that you can get by following these instructions [Get my app password](https://stackoverflow.com/a/45479968/19293939))
+  *  `EMAIL`
+  * `EMAIL_PASSWORD_APP`
+
+* These env variables are necaissary for secure authentification. Make sure you put different secrets for each variable
+  * `ACCESS_JWT_SECRET`
+
+
+  * `REFRESH_JWT_SECRET`
+
+
+  * `EMAIL_JWT_SECRET`
 
 * Firstly, on your terminal, make sure you are on the root project directory and run these following commands:
 make sure you install the dependencies
 ```bash
 npm install
 ```
-Copy the .env file sample and add the envirement variables on your host
-```bash
-cp .env.sample .env
-```
--   server is running on port 8000.
--   make sure to start mysql and appache servers.
+-   Server is running on port 8000.
+-   MySql is running on port 3306 by default, you can always change that on the env variables
+-   Make sure to start mysql and appache servers.
+
 Database creation and migration
 1. Navigate to db/ directory
 ```bash
