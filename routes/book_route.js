@@ -33,6 +33,13 @@ router.get('/admin',
     book_controllers.get_all_books_admin
 );
 
+// get all books // for admin
+router.get('/admin/:id',
+    verifyAdminAccessToken,
+    book_controllers.get_one_book_admin
+);
+
+
 // create one book / authorized to admin only
 router.post('/create',
     verifyAdminAccessToken,

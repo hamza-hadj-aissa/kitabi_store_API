@@ -29,7 +29,13 @@ async function validateBookSchema(bookInfo) {
 
 const get_one_book = async (req, res) => {
     let bookId = req.params.id;
-    await Books.findByPk(bookId)
+    await Books.findByPk(bookId, {
+        where: {
+            quantity: {
+                [Op.gt]: 0
+            }
+        }
+    })
         .then(
             async (book) => {
                 if (book) {
@@ -58,7 +64,13 @@ const get_one_book = async (req, res) => {
 }
 
 const get_all_books = async (req, res) => {
-    await Books.findAll()
+    await Books.findAll({
+        where: {
+            quantity: {
+                [Op.gt]: 0
+            }
+        }
+    })
         .then(
             (booksList) => {
                 return res.json({
@@ -75,8 +87,37 @@ const get_all_books = async (req, res) => {
         )
 }
 
-const get_all_books_admin = async (req, res) => {
+const get_one_book_admin = async (req, res) => {
+    let bookId = req.params.id;
+    await Books.findByPk(bookId)
+        .then(
+            async (book) => {
+                if (book) {
+                    await book.getCategory()
+                        .then((category) => {
+                            return res.json({
+                                success: true,
+                                book,
+                                category,
+                            });
+                        })
+                } else {
+                    res.json({
+                        success: false,
+                        book: "book not found",
+                    });
+                }
+            }
+        )
+        .catch(
+            (err) => res.json({
+                success: false,
+                message: err.message
+            })
+        );
+}
 
+const get_all_books_admin = async (req, res) => {
     await Books.findAll()
         .then(
             (booksList) => {
@@ -99,7 +140,7 @@ const get_books_by_category = async (req, res) => {
     await Categories.findAll({
         where: {
             name: { [Op.like]: '%' + value + '%' },
-        }
+        },
     })
         .then(async (categoriesList) => {
             let categories = categoriesList.map(categorie => categorie.id);
@@ -110,6 +151,9 @@ const get_books_by_category = async (req, res) => {
                         { author: { [Op.like]: '%' + value + '%' }, },
                         { fk_category_id: categories, }
                     ],
+                    quantity: {
+                        [Op.gt]: 0
+                    }
                 }
             })
                 .then(
@@ -319,6 +363,7 @@ module.exports = {
     get_one_book,
     get_all_books,
     get_all_books_admin,
+    get_one_book_admin,
     create_book,
     delete_book,
     delete_all_books,
