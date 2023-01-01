@@ -1,34 +1,39 @@
 const express = require('express');
 const router = express.Router();
 const auth_controller = require('../controllers/auth_controller');
-const auth_middleware = require('../middlewares/auth_middleware');
+const refreshClientAccessToken = require('../middlewares/refreshClientAccessToken');
+const refreshAdminAccessToken = require('../middlewares/refreshAdminAccessToken');
+const userIsLoggedIn = require('../middlewares/userIsLoggedIn');
+const userIsNotLoggedIn = require('../middlewares/userIsNotLoggedIn');
+const verifyAdminAccessToken = require('../middlewares/verifyAdminAccessToken');
+const verifyClientAccessToken = require('../middlewares/verifyClientAccessToken');
 
 // These routes for admins
-router.post('/admin/register', auth_middleware.userIsNotLoggedIn, auth_controller.register_admin);
-router.post('/admin/login', auth_middleware.userIsNotLoggedIn, auth_controller.login_admin);
+router.post('/admin/register', userIsNotLoggedIn, auth_controller.register_admin);
+
+router.post('/admin/login', userIsNotLoggedIn, auth_controller.login_admin);
+
+router.put('/admin/change-password', verifyAdminAccessToken, auth_controller.changePassword);
+
+router.get('/admin/refreshToken', refreshAdminAccessToken)
 
 
 // This route is for clients
+router.post('/register', userIsNotLoggedIn, auth_controller.register_client);
 
-router.post('/register', auth_middleware.userIsNotLoggedIn, auth_controller.register_client);
+router.post('/login', userIsNotLoggedIn, auth_controller.login_client);
 
-router.post('/login', auth_middleware.userIsNotLoggedIn, auth_controller.login_client);
-
-router.delete('/logout', auth_middleware.userIsLoggedIn, auth_controller.logout);
+router.delete('/logout', userIsLoggedIn, auth_controller.logout);
 
 router.get('/confirm-email?', auth_controller.verifyEmail);
 
 router.post('/resend-confirmation-email', auth_controller.resendVerificationEmail)
 
-router.put('/change-password', auth_middleware.verfiyClientAccessToken, auth_controller.changePassword);
-
-router.put('/admin/change-password', auth_middleware.verfiyAdminAccessToken, auth_controller.changePassword);
-
+router.put('/change-password', verifyClientAccessToken, auth_controller.changePassword);
 // refresh client token
-router.get('/refreshToken', auth_middleware.refreshClientAccessToken)
+router.get('/refreshToken', refreshClientAccessToken);
 
-// refresh admin token
-router.get('/admin/refreshToken', auth_middleware.refreshAdminAccessToken)
+
 
 router.use((error, req, res, next) => {
 

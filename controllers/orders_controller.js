@@ -152,7 +152,6 @@ const buy_book = async (req, res) => {
             });
         })
         .catch(err => {
-            console.log(err);
             res.status(401).json({
                 success: false,
                 message: err.message
@@ -163,7 +162,6 @@ const buy_book = async (req, res) => {
 const getOrderReceipt = async (req, res) => {
     await Receipts.create_receipt(req.body.id)
         .then((receipt) => {
-            console.log(receipt)
             res.json({
                 success: true,
                 receipt: receipt
@@ -178,7 +176,6 @@ const getOrderReceipt = async (req, res) => {
 }
 
 const updateOrderStatus = async (req, res) => {
-    console.log(req.body.status)
     await Orders.findByPk(req.params.id)
         .then(async (order) => {
             await order.set('status', parseInt(req.body.status)).save()

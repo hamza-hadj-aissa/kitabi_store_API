@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const stores_controllers = require('../controllers/stores_controller');
-const auth_middleware = require('../middlewares/auth_middleware');
+const verifyAdminAccessToken = require('../middlewares/verifyAdminAccessToken');
 
-// This route is for sellers only
-
-
-router.get('/counts', auth_middleware.verfiyAdminAccessToken, stores_controllers.getCountOf_clients_books_orders);
-
+// count number of cutomers, books and orders // authorized for admins only
+router.get('/counts',
+    verifyAdminAccessToken,
+    stores_controllers.getCountOf_clients_books_orders
+);
 
 router.use((error, req, res, next) => {
     res.status(error.status || 500);

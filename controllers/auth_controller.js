@@ -65,7 +65,6 @@ const sendVerificationEmail = async (email) => {
 
     return readHTMLFile(htmlFilePath, async function (err, html) {
         if (err) {
-            console.log('error reading file', err);
             return;
         }
         var template = handlebars.compile(html);
@@ -100,7 +99,6 @@ const sendVerificationEmail = async (email) => {
             })
             .catch(
                 (err) => {
-                    console.log(err);
                     throw err;
                 }
             );
@@ -304,7 +302,6 @@ const verifyEmail = async (req, res, next) => {
         )
         .catch(
             err => {
-                console.log(err);
                 if (err.message === 'invalid signature') {
                     next();
                 } else {
@@ -369,7 +366,6 @@ const resendVerificationEmail = async (req, res) => {
         )
         .catch(
             (err) => {
-                console.log(err)
                 return res.status(401).json({
                     success: false,
                     message: err
@@ -381,7 +377,6 @@ const resendVerificationEmail = async (req, res) => {
 const changePassword = async (req, res) => {
     let { oldPassword, newPassword, newConfirmPassword } = req.body;
     let { id } = req.user;
-    console.log({ oldPassword, newPassword, newConfirmPassword })
     let { errors } = await validatePasswordSchema(newPassword, newConfirmPassword);
     if (errors) {
         res.json({
@@ -392,7 +387,6 @@ const changePassword = async (req, res) => {
         await Users.change_password(id, oldPassword, newPassword)
             .then(
                 (result) => {
-                    console.log('password updated successfully');
                     res.json({
                         success: true
                     });

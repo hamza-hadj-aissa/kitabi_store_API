@@ -31,7 +31,6 @@ async function validateBookSchema(bookInfo) {
 const findOrCreateBook = async (newBookInfo) => {
     let { errors, value } = await validateBookSchema(newBookInfo);
     newBookInfo = value;
-    console.log(newBookInfo)
     if (errors) {
         throw new Error(errors);
     } else {

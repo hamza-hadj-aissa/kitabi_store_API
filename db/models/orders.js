@@ -94,7 +94,6 @@ module.exports = (sequelize, DataTypes) => {
                                 })
                                     .then(
                                         async (newOrder) => {
-                                            console.log('new one', newOrder)
                                             if (newOrder) {
                                                 let orderResult;
                                                 await Promise.all(

@@ -95,7 +95,6 @@ module.exports = (sequelize, DataTypes) => {
             )
             .catch(
                 (err) => {
-                    console.log(err);
                     throw err;
                 }
             );
