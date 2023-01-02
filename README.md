@@ -28,7 +28,7 @@ cp .env.sample .env
 ```
 To run this project, you will need to add the following environment variables to your .env file
 
-* In order to run email verification, you must provide your email and your password (You don't have to put your own personal password. Instead, you should use another password that you can get by following these instructions [Get my app password](https://stackoverflow.com/a/45479968/19293939))
+* In order to run email verification, you must provide your email and your password (You don't have to put your own personal password. Instead, you should use another password that you can get by following these instructions [Get my app password](https://stackoverflow.com/a/45479968/19293939){:target="_blank" rel="noopener"}
   *  `EMAIL`
   * `EMAIL_PASSWORD_APP`
 
@@ -82,4 +82,4 @@ npm start
 And voila! API is running!
 
 ## 🔗 Contact
-[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/hadjaissahamza/)
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/hadjaissahamza/){:target="_blank" rel="noopener"}
