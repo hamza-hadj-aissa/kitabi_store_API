@@ -57,7 +57,7 @@ cd db/
 ```
 2. Create the database named 'kitabi_store_db' with the following command:
 ```bash
-sequelize db:create
+npx sequelize db:create
 ```
 3. Create the database tables with this command:
 ```bash
@@ -67,7 +67,7 @@ node models/index.js
 4. Run this command to migrate data into the database:
 
 ```bash
-sequelize db:seed:all
+npx sequelize db:seed:all
 ```
 5. Next, go back to the root directory and run this command to serve images to the front app:
 ```bash
