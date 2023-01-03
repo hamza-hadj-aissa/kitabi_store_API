@@ -48,7 +48,7 @@ const verifyClientAccessToken = async (req, res, next) => {
             });
     } else {
         // invalid accessToken
-        res.sendStatus(403);
+        res.sendStatus(401);
     }
 }
 

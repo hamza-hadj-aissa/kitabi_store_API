@@ -11,7 +11,7 @@ const refreshAdminAccessToken = async (req, res, next) => {
     // get the refreshToken from the cookies
     let refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
-        return res.sendStatus(401);
+        return res.sendStatus(403);
     }
     // verify the accessToken
     let decodedToken = null;
@@ -66,7 +66,7 @@ const refreshAdminAccessToken = async (req, res, next) => {
     } else {
         // invalid token
         res.clearCookie('refreshToken');
-        res.sendStatus(403);
+        res.sendStatus(401);
     }
 }
 

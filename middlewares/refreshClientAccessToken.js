@@ -11,7 +11,7 @@ const refreshClientAccessToken = async (req, res, next) => {
     // get the accessToken from the headers
     let refreshToken = req.cookies?.refreshToken;
     if (!refreshToken) {
-        return res.sendStatus(401);
+        return res.sendStatus(403);
     }
     // verify the accessToken
     let decodedToken = null;
@@ -75,7 +75,7 @@ const refreshClientAccessToken = async (req, res, next) => {
     } else {
         // invalid refreshToken
         res.clearCookie('refreshToken');
-        res.sendStatus(403);
+        res.sendStatus(401);
     }
 }
 
