@@ -136,41 +136,32 @@ const get_all_books_admin = async (req, res) => {
 }
 
 const get_books_by_category = async (req, res) => {
-    let { value } = req.query;
-    await Categories.findAll({
+    let { value, category } = req.query;
+    await Books.findAll({
         where: {
-            name: { [Op.like]: '%' + value + '%' },
-        },
+            [Op.or]: [
+                { title: { [Op.like]: '%' + value + '%' }, },
+                { author: { [Op.like]: '%' + value + '%' }, },
+            ],
+            quantity: {
+                [Op.gt]: 0
+            }
+        }
     })
-        .then(async (categoriesList) => {
-            let categories = categoriesList.map(categorie => categorie.id);
-            await Books.findAll({
-                where: {
-                    [Op.or]: [
-                        { title: { [Op.like]: '%' + value + '%' }, },
-                        { author: { [Op.like]: '%' + value + '%' }, },
-                        { fk_category_id: categories, }
-                    ],
-                    quantity: {
-                        [Op.gt]: 0
-                    }
-                }
+        .then(
+            (booksList) => {
+                return res.json({
+                    success: true,
+                    books: category ? booksList.filter(book => book.fk_category_id == category) : booksList
+                });
+            }
+        )
+        .catch(
+            (err) => res.json({
+                success: false,
+                message: err.message
             })
-                .then(
-                    (booksList) => {
-                        return res.json({
-                            success: true,
-                            books: booksList
-                        });
-                    }
-                )
-                .catch(
-                    (err) => res.json({
-                        success: false,
-                        message: err.message
-                    })
-                )
-        })
+        )
 }
 
 const create_book = async (req, res) => {
