@@ -112,39 +112,44 @@ module.exports = (sequelize, DataTypes) => {
                     if (!user) {
                         throw Error('user not found');
                     } else {
-                        const bcrypt = require('bcryptjs');
-                        var passwordIsValid = bcrypt.compareSync(
-                            password,
-                            user.password
-                        );
-                        if (!passwordIsValid) {
-                            throw Error('incorrect password');
-                        } else {
-                            let { refreshToken, accessToken } = generateTokens(user.id);
-                            await RefreshTokens.destroy({
-                                where: {
-                                    fk_user_id: user.id
-                                }
-                            })
-                                .then(
-                                    async (destroyedRefreshToken) => {
-                                        await RefreshTokens.create({
-                                            fk_user_id: user.id,
-                                            refreshToken
-                                        })
-                                            .then((createdRefreshToken) => {
-                                                if (createdRefreshToken) {
-                                                    return;
-                                                } else {
-                                                    throw Error('could not log in');
-                                                }
-                                            })
+                        let admin = await user.getAdmin();
+                        if (admin) {
+                            const bcrypt = require('bcryptjs');
+                            var passwordIsValid = bcrypt.compareSync(
+                                password,
+                                user.password
+                            );
+                            if (!passwordIsValid) {
+                                throw Error('incorrect password');
+                            } else {
+                                let { refreshToken, accessToken } = generateTokens(user.id);
+                                await RefreshTokens.destroy({
+                                    where: {
+                                        fk_user_id: user.id
                                     }
-                                )
-                                .catch((err) => {
-                                    throw err;
-                                });
-                            return { id: user.id, accessToken, refreshToken };
+                                })
+                                    .then(
+                                        async (destroyedRefreshToken) => {
+                                            await RefreshTokens.create({
+                                                fk_user_id: user.id,
+                                                refreshToken
+                                            })
+                                                .then((createdRefreshToken) => {
+                                                    if (createdRefreshToken) {
+                                                        return;
+                                                    } else {
+                                                        throw Error('could not log in');
+                                                    }
+                                                })
+                                        }
+                                    )
+                                    .catch((err) => {
+                                        throw err;
+                                    });
+                                return { id: user.id, accessToken, refreshToken };
+                            }
+                        } else {
+                            throw Error('user not found');
                         }
                     }
                 }
