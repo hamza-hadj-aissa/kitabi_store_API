@@ -14,8 +14,10 @@ module.exports = (sequelize, DataTypes) => {
                             .then(
                                 (foundBook) => {
                                     if (foundBook) {
-                                        if (foundBook.quantity < book.quantity) {
-                                            throw Error(`only ${foundBook.quantity} is left of ${foundBook.title}`);
+                                        if (foundBook.quantity === 0) {
+                                            throw Error(`${foundBook.title} is out of stock`);
+                                        } else if (foundBook.quantity < book.quantity) {
+                                            throw Error(`Only ${foundBook.quantity} books are left of ${foundBook.title}`);
                                         }
                                     } else {
                                         throw Error('book does not exist');

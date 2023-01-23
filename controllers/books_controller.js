@@ -65,11 +65,11 @@ const get_one_book = async (req, res) => {
 
 const get_all_books = async (req, res) => {
     await Books.findAll({
-        where: {
-            quantity: {
-                [Op.gt]: 0
-            }
-        }
+        // where: {
+        //     quantity: {
+        //         [Op.gt]: 0
+        //     }
+        // }
     })
         .then(
             (booksList) => {
@@ -143,9 +143,9 @@ const get_books_by_category = async (req, res) => {
                 { title: { [Op.like]: '%' + value + '%' }, },
                 { author: { [Op.like]: '%' + value + '%' }, },
             ],
-            quantity: {
-                [Op.gt]: 0
-            }
+            // quantity: {
+            //     [Op.gt]: 0
+            // }
         }
     })
         .then(

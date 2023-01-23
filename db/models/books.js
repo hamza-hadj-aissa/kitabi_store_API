@@ -166,13 +166,17 @@ module.exports = (sequelize, DataTypes) => {
       .then(
         async (book) => {
           if (book) {
-            if (book.quantity >= quantity) {
-              return await book.decrement('quantity', { by: quantity })
-                .then(
-                  async (result) => await Books.findByPk(bookId)
-                );
+            if (book.quantity === 0) {
+              throw Error(`${book.title} is out of stock`);
             } else {
-              throw Error(`only ${book.quantity} is left of ${book.title}`);
+              if (book.quantity >= quantity) {
+                return await book.decrement('quantity', { by: quantity })
+                  .then(
+                    async (result) => await Books.findByPk(bookId)
+                  );
+              } else {
+                throw Error(`Only ${book.quantity} is left of ${book.title}`);
+              }
             }
           } else {
             throw Error('book does not exist');

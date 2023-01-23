@@ -152,7 +152,7 @@ const buy_book = async (req, res) => {
             });
         })
         .catch(err => {
-            res.status(401).json({
+            res.json({
                 success: false,
                 message: err.message
             })
