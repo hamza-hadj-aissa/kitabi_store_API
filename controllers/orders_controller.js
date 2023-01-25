@@ -176,14 +176,29 @@ const getOrderReceipt = async (req, res) => {
 }
 
 const updateOrderStatus = async (req, res) => {
+    let newStatus = parseInt(req.body.status);
     await Orders.findByPk(req.params.id)
         .then(async (order) => {
-            await order.set('status', parseInt(req.body.status)).save()
-                .then((orderModidified) => {
+            if (order) {
+                if (order.status === 3) {
                     return res.json({
-                        success: true,
+                        success: false,
+                        message: 'This order has been cancelled'
                     });
+                } else {
+                    await order.set('status', newStatus).save()
+                        .then((orderModidified) => {
+                            return res.json({
+                                success: true,
+                            });
+                        });
+                }
+            } else {
+                return res.json({
+                    success: false,
+                    message: 'Order not found'
                 })
+            }
         })
         .catch((err) => {
             res.json({

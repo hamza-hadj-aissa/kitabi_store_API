@@ -13,6 +13,7 @@ router.put('/update/:id', verifyAdminAccessToken, orders_controller.updateOrderS
 router.get('/', verifyClientAccessToken, orders_controller.get_all_orders);
 router.post('/buy', verifyClientAccessToken, orders_controller.buy_book);
 router.post('/receipt', verifyClientAccessToken, orders_controller.getOrderReceipt);
+router.put('/client/update/:id', verifyClientAccessToken, orders_controller.updateOrderStatus);
 
 
 router.use((error, req, res, next) => {

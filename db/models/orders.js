@@ -39,17 +39,6 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             type: DataTypes.INTEGER
         },
-        // fk_buyer_id: {
-        //     allowNull: false,
-        //     type: DataTypes.INTEGER,
-        //     foreignKey: true,
-        // onDelete: 'cascade',
-        // onUpdate: 'cascade',
-        // references: {
-        //     model: 'Clients',
-        //     key: 'id',
-        // }
-        // },
         status: {
             allowNull: false,
             type: DataTypes.INTEGER,
