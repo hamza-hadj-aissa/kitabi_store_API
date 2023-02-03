@@ -143,10 +143,11 @@ const get_books_by_category = async (req, res) => {
                 { title: { [Op.like]: '%' + value + '%' }, },
                 { author: { [Op.like]: '%' + value + '%' }, },
             ],
-            // quantity: {
-            //     [Op.gt]: 0
-            // }
-        }
+        },
+        order: [
+            ['title', 'DESC'],
+            ['author', 'DESC']
+        ],
     })
         .then(
             (booksList) => {
