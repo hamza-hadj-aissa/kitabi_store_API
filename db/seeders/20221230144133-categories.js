@@ -99,6 +99,10 @@ module.exports = {
       {
         id: 24,
         name: 'Novel',
+      },
+      {
+        id: 25,
+        name: 'Psychology'
       }
     ], {
       ignoreDuplicates: true

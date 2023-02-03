@@ -147,6 +147,65 @@ module.exports = {
         and a company of dwarves arrive on his doorstep one day to whisk him away on an adventure. They have launched a plot to raid the treasure hoard guarded by Smaug the Magnificent, a large and very 
         dangerous dragon. Bilbo reluctantly joins their quest, unaware that on his journey to the Lonely Mountain he will encounter both a magic ring and a frightening creature known as Gollum.`,
         image: 'the-hobbit.jpg',
+      },
+      {
+        id: 8,
+        title: 'Psychology of Crowds',
+        author: 'Gustave Le Bon',
+        pages_number: 224,
+        fk_category_id: 25,
+        price: 1800,
+        discount: 5,
+        quantity: 25,
+        description: `The ideas le Bon explores in this book are extremely relevant to today's society and were of pivotal importance in the early years of group psychology. Applications include financial market behaviour and political delusions.
+        In this clear and vivid book, Gustave Le Bon throws light on the unconscious irrational workings of a group thought and mass emotion as he places crowd ideology in opposition to free-thinking and independent minded individuals. He shows how the behaviour of an individual changes when part of the crowd. Le Bon concludes his work with a prophetic vision of the destruction of civilization.`,
+        image: 'psychology-of-crowds.jpg'
+      },
+      {
+        id: 10,
+        title: 'Thus Spake Zarathustra',
+        author: 'Friedrich Nietzsche',
+        pages_number: 288,
+        fk_category_id: 18,
+        price: 4900,
+        discount: 0,
+        quantity: 18,
+        description: `A tremendously influential philosophical work of the late nineteenth century, Thus Spake Zarathustra is also a literary masterpiece by one of the most important thinkers of modern times. In it, the ancient Persian religious leader Zarathustra (or Zoroaster) serves as the voice for Friedrich Nietzsche's views, which include the introduction of the controversial doctrine of the Übermensch, or "superman."
+        Although later perverted by Nazi propagandists, the Übermensch was conceived by Nietzsche to designate the ultimate goal of human existence as the achievement of greatness of will and being. He was convinced that the individual, instead of resigning himself to the weakness of being human and worshipping perfection only possible in the next world (at least in the Christian view), should try to perfect himself during his earthly existence, and transcend the limitations of conventional morality. By doing so, the Übermensch would emerge victorious, standing in stark contrast to "the last man" — an uncreative conformist and complacent hedonist who embodies Nietzsche's critique of modern civilization, morality, and the Christian religion.
+        Written in a passionate, quasi-biblical style, Thus Spake Zarathustra is daring in form and filled with provocative, thought-provoking concepts. Today, the work is regarded as a forerunner of modern existentialist thought, a book that has provoked and stimulated students of philosophy and literature for more than 100 years.`,
+        image: 'thus-spoke-zarathustra.jpg'
+      },
+      {
+        id: 11,
+        title: 'Friends, Lovers, and the Big Terrible Thing: A Memoir',
+        author: 'Matthew Perry',
+        pages_number: 272,
+        fk_category_id: 22,
+        price: 3500,
+        discount: 0,
+        quantity: 43,
+        description: `INSTANT #1 NEW YORK TIMES BESTSELLER
+        #1 INTERNATIONAL BESTSELLER
+
+        The BELOVED STAR OF FRIENDS takes us behind the scenes of the hit sitcom and his struggles with addiction in this “CANDID, DARKLY FUNNY...POIGNANT” memoir (The New York Times)
+        A MOST ANTICIPATED BOOK by Time, Associated Press, Goodreads, USA Today, and more!
+        “Hi, my name is Matthew, although you may know me by another name. My friends call me Matty. And I should be dead.”
+        So begins the riveting story of acclaimed actor Matthew Perry, taking us along on his journey from childhood ambition to fame to addiction and recovery in the aftermath of a life-threatening health scare. Before the frequent hospital visits and stints in rehab, there was five-year-old Matthew, who traveled from Montreal to Los Angeles, shuffling between his separated parents; fourteen-year-old Matthew, who was a nationally ranked tennis star in Canada; twenty-four-year-old Matthew, who nabbed a coveted role as a lead cast member on the talked-about pilot then called Friends Like Us. . . and so much more.
+        In an extraordinary story that only he could tell―and in the heartfelt, hilarious, and warmly familiar way only he could tell it―Matthew Perry lays bare the fractured family that raised him (and also left him to his own devices), the desire for recognition that drove him to fame, and the void inside him that could not be filled even by his greatest dreams coming true. But he also details the peace he’s found in sobriety and how he feels about the ubiquity of Friends, sharing stories about his castmates and other stars he met along the way. Frank, self-aware, and with his trademark humor, Perry vividly depicts his lifelong battle with addiction and what fueled it despite seemingly having it all.
+        Friends, Lovers, and the Big Terrible Thing is an unforgettable memoir that is both intimate and eye-opening―as well as a hand extended to anyone struggling with sobriety. Unflinchingly honest, moving, and uproariously funny, this is the book fans have been waiting for.`,
+        image: 'friends,-lovers,-and-the-big-terrible-thing.jpg'
+      },
+      {
+        id: 12,
+        title: 'Persuasion',
+        author: 'Jane Austen',
+        pages_number: 149,
+        fk_category_id: 24,
+        price: 1750,
+        discount: 0,
+        quantity: 5,
+        description: `Persuasion is the last novel fully completed by Jane Austen. It was published at the end of 1817, six months after her death.The story concerns Anne Elliot, a young Englishwoman of 27 years, whose family is moving to lower their expenses and get out of debt, at the same time as the wars come to an end, putting sailors on shore. They rent their home to an Admiral and his wife. The wife’s brother, Navy Captain Frederick Wentworth, had been engaged to Anne in 1806, and now they meet again, both single and unattached, after no contact in more than seven years. This sets the scene for many humorous encounters as well as a second, well-considered chance at love and marriage for Anne Elliot in her second "bloom".`,
+        image: 'persuasion.jpeg'
       }
     ], {
       ignoreDuplicates: true
