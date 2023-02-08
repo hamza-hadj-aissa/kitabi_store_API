@@ -18,8 +18,13 @@ There's 3 types of users. Guest / Client / Admin.
 ## Installation
 Clone this project to your host by running:
 ```bash
-https://github.com/hamza-hadj-aissa/kitabi_store_API.git
+git clone https://github.com/hamza-hadj-aissa/kitabi_store_API.git
 ```
+Then navigate to the project's directory:
+```bash
+cd kitabi_store_API
+```
+
 
 ### Environment Variables
 Copy the .env file sample and add the envirement variables on your host
